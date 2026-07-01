@@ -141,7 +141,6 @@
             const res = await fetch('/api/dashboard',{cache:'no-store'});
             if(!res.ok) throw new Error('HTTP '+res.status);
             DATA = await res.json();
-            console.log(DATA)
             prep(); renderAll(); showState('ready');
         }catch(err){ console.error(err); showError(err); }
     }

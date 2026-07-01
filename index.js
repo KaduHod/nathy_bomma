@@ -2,17 +2,18 @@ import express from "express";
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import db from './banco.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 3000;
 
 // Serve arquivos estáticos (o dashboard.html vai ficar na raiz)
-app.use(express.static(__dirname));
+app.use(express.static(join(__dirname ,"publico")));
 
 // Rota raiz → entrega o dashboard em http://localhost:3000/
-    app.get("/", (req, res) => {
-        res.sendFile(join(__dirname, "dashboard.html"));
+    app.get("/", async (req, res) => {
+        res.sendFile(join(__dirname, "publico/dashboard.html"));
     });
 
 // ─── Leitura dos JSONs ────────────────────────────────────────────────────────
