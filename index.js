@@ -14,9 +14,6 @@ app.use(express.static(__dirname));
 app.get("/", (req, res) => {
   res.sendFile(join(__dirname, "dashboard.html"));
 });
-app.get("/dash", (req, res) => {
-  res.sendFile(join(__dirname, "dashboard2.html"));
-});
 
 // ─── Leitura dos JSONs ────────────────────────────────────────────────────────
 
