@@ -1,0 +1,778 @@
+[
+  {
+    "id": 1,
+    "projeto_id": 1,
+    "funcionario_id": 1,
+    "comentario": "Reunião realizada, iniciando briefing.",
+    "alteracao_status_id": 2,
+    "data": "2025-07-01T09:00:00"
+  },
+  {
+    "id": 2,
+    "projeto_id": 1,
+    "funcionario_id": 1,
+    "comentario": "Briefing finalizado dentro do prazo.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-07T10:00:00"
+  },
+  {
+    "id": 3,
+    "projeto_id": 1,
+    "funcionario_id": 5,
+    "comentario": "Peças criadas.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-10T09:00:00"
+  },
+  {
+    "id": 4,
+    "projeto_id": 1,
+    "funcionario_id": 5,
+    "comentario": "Enviando para aprovação interna.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-14T16:00:00"
+  },
+  {
+    "id": 5,
+    "projeto_id": 1,
+    "funcionario_id": 1,
+    "comentario": "Aprovado internamente. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-15T10:00:00"
+  },
+  {
+    "id": 6,
+    "projeto_id": 1,
+    "funcionario_id": 1,
+    "comentario": "Cliente aprovou na primeira vez!",
+    "alteracao_status_id": 12,
+    "data": "2025-07-17T11:00:00"
+  },
+  {
+    "id": 7,
+    "projeto_id": 1,
+    "funcionario_id": 1,
+    "comentario": "Publicações agendadas.",
+    "alteracao_status_id": 14,
+    "data": "2025-07-28T09:00:00"
+  },
+  {
+    "id": 8,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Briefing concluído.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-06T10:00:00"
+  },
+  {
+    "id": 9,
+    "projeto_id": 5,
+    "funcionario_id": 5,
+    "comentario": "Iniciando artes.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-07T09:00:00"
+  },
+  {
+    "id": 10,
+    "projeto_id": 5,
+    "funcionario_id": 5,
+    "comentario": "Artes prontas, enviando para revisão.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-11T15:00:00"
+  },
+  {
+    "id": 11,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Social aprovou. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-12T10:00:00"
+  },
+  {
+    "id": 12,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Cliente aprovou sem ressalvas.",
+    "alteracao_status_id": 12,
+    "data": "2025-07-14T09:00:00"
+  },
+  {
+    "id": 13,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Publicado e finalizado.",
+    "alteracao_status_id": 13,
+    "data": "2025-07-22T10:00:00"
+  },
+  {
+    "id": 14,
+    "projeto_id": 6,
+    "funcionario_id": 1,
+    "comentario": "Briefing finalizado.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-05T10:00:00"
+  },
+  {
+    "id": 15,
+    "projeto_id": 6,
+    "funcionario_id": 7,
+    "comentario": "Roteiro aprovado, iniciando gravação.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-07T09:00:00"
+  },
+  {
+    "id": 16,
+    "projeto_id": 6,
+    "funcionario_id": 7,
+    "comentario": "Edição finalizada.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-14T17:00:00"
+  },
+  {
+    "id": 17,
+    "projeto_id": 6,
+    "funcionario_id": 1,
+    "comentario": "Social aprovou. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-15T10:00:00"
+  },
+  {
+    "id": 18,
+    "projeto_id": 6,
+    "funcionario_id": 1,
+    "comentario": "Cliente adorou, aprovação imediata.",
+    "alteracao_status_id": 12,
+    "data": "2025-07-16T11:00:00"
+  },
+  {
+    "id": 19,
+    "projeto_id": 6,
+    "funcionario_id": 1,
+    "comentario": "Vídeo publicado.",
+    "alteracao_status_id": 13,
+    "data": "2025-07-23T09:00:00"
+  },
+  {
+    "id": 20,
+    "projeto_id": 4,
+    "funcionario_id": 2,
+    "comentario": "Briefing alinhado com cliente.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-09T10:00:00"
+  },
+  {
+    "id": 21,
+    "projeto_id": 4,
+    "funcionario_id": 5,
+    "comentario": "Artes finalizadas.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-12T09:00:00"
+  },
+  {
+    "id": 22,
+    "projeto_id": 4,
+    "funcionario_id": 5,
+    "comentario": "Enviando para aprovação.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-15T16:00:00"
+  },
+  {
+    "id": 23,
+    "projeto_id": 4,
+    "funcionario_id": 2,
+    "comentario": "Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-16T10:00:00"
+  },
+  {
+    "id": 24,
+    "projeto_id": 4,
+    "funcionario_id": 2,
+    "comentario": "Cliente reprovou. Quer mudar paleta de cores e trocar foto principal.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-18T14:00:00"
+  },
+  {
+    "id": 25,
+    "projeto_id": 4,
+    "funcionario_id": 5,
+    "comentario": "Alterações realizadas.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-20T16:00:00"
+  },
+  {
+    "id": 26,
+    "projeto_id": 4,
+    "funcionario_id": 2,
+    "comentario": "Enviando para segunda aprovação.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-21T10:00:00"
+  },
+  {
+    "id": 27,
+    "projeto_id": 4,
+    "funcionario_id": 2,
+    "comentario": "Cliente reprovou novamente. Agora quer mudar a fonte e o layout.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-23T15:00:00"
+  },
+  {
+    "id": 28,
+    "projeto_id": 4,
+    "funcionario_id": 5,
+    "comentario": "Segunda rodada de alterações concluída.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-25T17:00:00"
+  },
+  {
+    "id": 29,
+    "projeto_id": 4,
+    "funcionario_id": 2,
+    "comentario": "Enviando para terceira aprovação.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-26T10:00:00"
+  },
+  {
+    "id": 30,
+    "projeto_id": 4,
+    "funcionario_id": 2,
+    "comentario": "Cliente reprovou mais uma vez. Quer voltar à ideia original.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-31T11:00:00"
+  },
+  {
+    "id": 31,
+    "projeto_id": 3,
+    "funcionario_id": 2,
+    "comentario": "Briefing finalizado no prazo.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-08T10:00:00"
+  },
+  {
+    "id": 32,
+    "projeto_id": 3,
+    "funcionario_id": 7,
+    "comentario": "Produção do reels iniciada.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-09T09:00:00"
+  },
+  {
+    "id": 33,
+    "projeto_id": 3,
+    "funcionario_id": 7,
+    "comentario": "Reels finalizado.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-14T17:00:00"
+  },
+  {
+    "id": 34,
+    "projeto_id": 3,
+    "funcionario_id": 2,
+    "comentario": "Social aprovou. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-15T10:00:00"
+  },
+  {
+    "id": 35,
+    "projeto_id": 3,
+    "funcionario_id": 2,
+    "comentario": "Cliente reprovou. Quer trilha sonora diferente e legendas maiores.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-17T14:00:00"
+  },
+  {
+    "id": 36,
+    "projeto_id": 3,
+    "funcionario_id": 7,
+    "comentario": "Ajustes concluídos.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-19T16:00:00"
+  },
+  {
+    "id": 37,
+    "projeto_id": 3,
+    "funcionario_id": 2,
+    "comentario": "Segunda aprovação enviada.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-20T10:00:00"
+  },
+  {
+    "id": 38,
+    "projeto_id": 3,
+    "funcionario_id": 2,
+    "comentario": "Cliente reprovou novamente. Quer iniciar com cena diferente.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-22T15:00:00"
+  },
+  {
+    "id": 39,
+    "projeto_id": 3,
+    "funcionario_id": 7,
+    "comentario": "Terceira rodada de edição finalizada.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-24T17:00:00"
+  },
+  {
+    "id": 40,
+    "projeto_id": 3,
+    "funcionario_id": 2,
+    "comentario": "Enviando para aprovação final.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-25T10:00:00"
+  },
+  {
+    "id": 41,
+    "projeto_id": 3,
+    "funcionario_id": 2,
+    "comentario": "Cliente aprovou na quarta versão. Agendando.",
+    "alteracao_status_id": 12,
+    "data": "2025-07-28T11:00:00"
+  },
+  {
+    "id": 42,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Reunião realizada.",
+    "alteracao_status_id": 2,
+    "data": "2025-07-01T09:00:00"
+  },
+  {
+    "id": 43,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Iniciando briefing.",
+    "alteracao_status_id": 3,
+    "data": "2025-07-03T11:00:00"
+  },
+  {
+    "id": 44,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Briefing finalizado.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-10T16:00:00"
+  },
+  {
+    "id": 45,
+    "projeto_id": 2,
+    "funcionario_id": 4,
+    "comentario": "Iniciando design.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-11T09:00:00"
+  },
+  {
+    "id": 46,
+    "projeto_id": 2,
+    "funcionario_id": 4,
+    "comentario": "Carrossel finalizado com 8 slides, levou mais tempo para garantir qualidade.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-23T18:00:00"
+  },
+  {
+    "id": 47,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Social aprovou. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-24T10:00:00"
+  },
+  {
+    "id": 48,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Cliente aprovou sem ajustes.",
+    "alteracao_status_id": 12,
+    "data": "2025-07-26T09:00:00"
+  },
+  {
+    "id": 49,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Publicado.",
+    "alteracao_status_id": 13,
+    "data": "2025-07-29T10:00:00"
+  },
+  {
+    "id": 50,
+    "projeto_id": 8,
+    "funcionario_id": 3,
+    "comentario": "Reunião agendada.",
+    "alteracao_status_id": 2,
+    "data": "2025-07-01T09:00:00"
+  },
+  {
+    "id": 51,
+    "projeto_id": 8,
+    "funcionario_id": 3,
+    "comentario": "Iniciando briefing.",
+    "alteracao_status_id": 3,
+    "data": "2025-07-08T10:00:00"
+  },
+  {
+    "id": 52,
+    "projeto_id": 8,
+    "funcionario_id": 3,
+    "comentario": "Briefing ainda em construção, cliente difícil de agendar.",
+    "alteracao_status_id": 3,
+    "data": "2025-07-15T11:00:00"
+  },
+  {
+    "id": 53,
+    "projeto_id": 8,
+    "funcionario_id": 3,
+    "comentario": "Briefing finalizado com atraso.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-18T14:00:00"
+  },
+  {
+    "id": 54,
+    "projeto_id": 8,
+    "funcionario_id": 6,
+    "comentario": "Iniciando artes.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-19T09:00:00"
+  },
+  {
+    "id": 55,
+    "projeto_id": 8,
+    "funcionario_id": 6,
+    "comentario": "Artes prontas.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-22T16:00:00"
+  },
+  {
+    "id": 56,
+    "projeto_id": 8,
+    "funcionario_id": 3,
+    "comentario": "Social reprovou internamente. Pedindo ajuste de copy.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-23T10:00:00"
+  },
+  {
+    "id": 57,
+    "projeto_id": 8,
+    "funcionario_id": 6,
+    "comentario": "Copy ajustado.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-25T15:00:00"
+  },
+  {
+    "id": 58,
+    "projeto_id": 8,
+    "funcionario_id": 3,
+    "comentario": "Social reprovou novamente. Quer mudar CTA.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-26T10:00:00"
+  },
+  {
+    "id": 59,
+    "projeto_id": 8,
+    "funcionario_id": 6,
+    "comentario": "CTA atualizado.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-28T14:00:00"
+  },
+  {
+    "id": 60,
+    "projeto_id": 8,
+    "funcionario_id": 3,
+    "comentario": "Aprovado internamente. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-31T09:00:00"
+  },
+  {
+    "id": 61,
+    "projeto_id": 7,
+    "funcionario_id": 3,
+    "comentario": "Reunião realizada.",
+    "alteracao_status_id": 2,
+    "data": "2025-07-01T09:00:00"
+  },
+  {
+    "id": 62,
+    "projeto_id": 7,
+    "funcionario_id": 3,
+    "comentario": "Iniciando briefing.",
+    "alteracao_status_id": 3,
+    "data": "2025-07-04T10:00:00"
+  },
+  {
+    "id": 63,
+    "projeto_id": 7,
+    "funcionario_id": 3,
+    "comentario": "Briefing finalizado com atraso. Cliente demorou para responder alinhamentos.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-16T15:00:00"
+  },
+  {
+    "id": 64,
+    "projeto_id": 7,
+    "funcionario_id": 4,
+    "comentario": "Iniciando produção das peças.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-17T09:00:00"
+  },
+  {
+    "id": 65,
+    "projeto_id": 7,
+    "funcionario_id": 4,
+    "comentario": "Peças finalizadas.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-21T16:00:00"
+  },
+  {
+    "id": 66,
+    "projeto_id": 7,
+    "funcionario_id": 3,
+    "comentario": "Social aprovou na primeira. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-22T10:00:00"
+  },
+  {
+    "id": 67,
+    "projeto_id": 7,
+    "funcionario_id": 3,
+    "comentario": "Cliente aprovou sem ajustes.",
+    "alteracao_status_id": 12,
+    "data": "2025-07-24T11:00:00"
+  },
+  {
+    "id": 68,
+    "projeto_id": 7,
+    "funcionario_id": 3,
+    "comentario": "Publicações agendadas e projeto finalizado.",
+    "alteracao_status_id": 13,
+    "data": "2025-07-29T09:00:00"
+  },
+  {
+    "id": 69,
+    "projeto_id": 1,
+    "funcionario_id": 1,
+    "comentario": "Briefing finalizado.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-08T09:00:00"
+  },
+  {
+    "id": 70,
+    "projeto_id": 1,
+    "funcionario_id": 6,
+    "comentario": "Aguardando materiais do cliente para iniciar produção. Fotos e vídeos solicitados.",
+    "alteracao_status_id": 5,
+    "data": "2025-07-14T10:00:00"
+  },
+  {
+    "id": 71,
+    "projeto_id": 6,
+    "funcionario_id": 2,
+    "comentario": "Briefing finalizado.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-09T10:00:00"
+  },
+  {
+    "id": 72,
+    "projeto_id": 6,
+    "funcionario_id": 7,
+    "comentario": "Iniciando produção do vídeo.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-10T09:00:00"
+  },
+  {
+    "id": 73,
+    "projeto_id": 6,
+    "funcionario_id": 7,
+    "comentario": "Primeira versão do vídeo pronta.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-18T18:00:00"
+  },
+  {
+    "id": 74,
+    "projeto_id": 6,
+    "funcionario_id": 2,
+    "comentario": "Social reprovou internamente. Narração não está alinhada ao tom da marca.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-20T10:00:00"
+  },
+  {
+    "id": 75,
+    "projeto_id": 6,
+    "funcionario_id": 7,
+    "comentario": "Regravação da narração concluída.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-24T16:00:00"
+  },
+  {
+    "id": 76,
+    "projeto_id": 6,
+    "funcionario_id": 2,
+    "comentario": "Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-25T10:00:00"
+  },
+  {
+    "id": 77,
+    "projeto_id": 6,
+    "funcionario_id": 2,
+    "comentario": "Cliente reprovou. Quer trilha diferente e corte mais dinâmico.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-28T14:00:00"
+  },
+  {
+    "id": 78,
+    "projeto_id": 6,
+    "funcionario_id": 7,
+    "comentario": "Trabalhando nos ajustes solicitados.",
+    "alteracao_status_id": 9,
+    "data": "2025-07-31T09:00:00"
+  },
+  {
+    "id": 79,
+    "projeto_id": 3,
+    "funcionario_id": 3,
+    "comentario": "Projeto iniciado.",
+    "alteracao_status_id": 3,
+    "data": "2025-07-01T09:00:00"
+  },
+  {
+    "id": 80,
+    "projeto_id": 3,
+    "funcionario_id": 3,
+    "comentario": "Projeto cancelado. Cliente suspendeu investimento.",
+    "alteracao_status_id": 15,
+    "data": "2025-07-10T11:00:00"
+  },
+  {
+    "id": 81,
+    "projeto_id": 8,
+    "funcionario_id": 2,
+    "comentario": "Briefing recebido, iniciando design.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-14T09:00:00"
+  },
+  {
+    "id": 82,
+    "projeto_id": 8,
+    "funcionario_id": 6,
+    "comentario": "Iniciando desenvolvimento das peças.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-15T10:00:00"
+  },
+  {
+    "id": 83,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Reunião agendada.",
+    "alteracao_status_id": 2,
+    "data": "2025-07-01T09:00:00"
+  },
+  {
+    "id": 84,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Iniciando briefing. Cliente com agenda apertada.",
+    "alteracao_status_id": 3,
+    "data": "2025-07-10T11:00:00"
+  },
+  {
+    "id": 85,
+    "projeto_id": 2,
+    "funcionario_id": 3,
+    "comentario": "Ainda aguardando retorno do cliente para fechar o briefing.",
+    "alteracao_status_id": 3,
+    "data": "2025-07-18T14:00:00"
+  },
+  {
+    "id": 86,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Briefing finalizado.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-08T10:00:00"
+  },
+  {
+    "id": 87,
+    "projeto_id": 5,
+    "funcionario_id": 7,
+    "comentario": "Iniciando gravações.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-09T09:00:00"
+  },
+  {
+    "id": 88,
+    "projeto_id": 5,
+    "funcionario_id": 7,
+    "comentario": "Gravação finalizada. Iniciando edição.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-16T17:00:00"
+  },
+  {
+    "id": 89,
+    "projeto_id": 5,
+    "funcionario_id": 7,
+    "comentario": "Edição finalizada com qualidade. Processo foi longo mas sem retrabalho.",
+    "alteracao_status_id": 7,
+    "data": "2025-07-24T18:00:00"
+  },
+  {
+    "id": 90,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Social aprovou. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-25T10:00:00"
+  },
+  {
+    "id": 91,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Cliente aprovou sem nenhum ajuste.",
+    "alteracao_status_id": 12,
+    "data": "2025-07-27T11:00:00"
+  },
+  {
+    "id": 92,
+    "projeto_id": 5,
+    "funcionario_id": 1,
+    "comentario": "Publicado.",
+    "alteracao_status_id": 13,
+    "data": "2025-07-29T09:00:00"
+  },
+  {
+    "id": 93,
+    "projeto_id": 7,
+    "funcionario_id": 2,
+    "comentario": "Demanda urgente. Briefing alinhado por WhatsApp.",
+    "alteracao_status_id": 4,
+    "data": "2025-07-12T08:30:00"
+  },
+  {
+    "id": 94,
+    "projeto_id": 7,
+    "funcionario_id": 5,
+    "comentario": "Post criado em 2h.",
+    "alteracao_status_id": 6,
+    "data": "2025-07-14T10:00:00"
+  },
+  {
+    "id": 95,
+    "projeto_id": 7,
+    "funcionario_id": 2,
+    "comentario": "Social aprovou. Enviando ao cliente.",
+    "alteracao_status_id": 8,
+    "data": "2025-07-14T12:00:00"
+  },
+  {
+    "id": 96,
+    "projeto_id": 7,
+    "funcionario_id": 2,
+    "comentario": "Cliente aprovou em menos de 1h.",
+    "alteracao_status_id": 12,
+    "data": "2025-07-14T13:00:00"
+  },
+  {
+    "id": 97,
+    "projeto_id": 7,
+    "funcionario_id": 2,
+    "comentario": "Publicado imediatamente.",
+    "alteracao_status_id": 14,
+    "data": "2025-07-17T09:00:00"
+  }
+]

@@ -1,0 +1,10 @@
+[
+  { "id": 1, "nome": "Andrade e Silva Advocacia" },
+  { "id": 2, "nome": "Clínica Estética Lumina" },
+  { "id": 3, "nome": "Construtora Horizonte" },
+  { "id": 4, "nome": "Restaurante Sabor & Arte" },
+  { "id": 5, "nome": "TechFlow Soluções" },
+  { "id": 6, "nome": "Academia FitLife" },
+  { "id": 7, "nome": "Imobiliária Premier" },
+  { "id": 8, "nome": "Farmácia Bem Estar" }
+]

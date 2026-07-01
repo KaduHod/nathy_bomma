@@ -1,0 +1,94 @@
+[
+  {
+    "projeto_id": 1,
+    "funcionario_id": 1
+  },
+  {
+    "projeto_id": 1,
+    "funcionario_id": 5
+  },
+  {
+    "projeto_id": 1,
+    "funcionario_id": 6
+  },
+  {
+    "projeto_id": 2,
+    "funcionario_id": 3
+  },
+  {
+    "projeto_id": 2,
+    "funcionario_id": 4
+  },
+  {
+    "projeto_id": 3,
+    "funcionario_id": 2
+  },
+  {
+    "projeto_id": 3,
+    "funcionario_id": 3
+  },
+  {
+    "projeto_id": 3,
+    "funcionario_id": 7
+  },
+  {
+    "projeto_id": 4,
+    "funcionario_id": 2
+  },
+  {
+    "projeto_id": 4,
+    "funcionario_id": 5
+  },
+  {
+    "projeto_id": 5,
+    "funcionario_id": 1
+  },
+  {
+    "projeto_id": 5,
+    "funcionario_id": 5
+  },
+  {
+    "projeto_id": 5,
+    "funcionario_id": 7
+  },
+  {
+    "projeto_id": 6,
+    "funcionario_id": 1
+  },
+  {
+    "projeto_id": 6,
+    "funcionario_id": 2
+  },
+  {
+    "projeto_id": 6,
+    "funcionario_id": 7
+  },
+  {
+    "projeto_id": 7,
+    "funcionario_id": 2
+  },
+  {
+    "projeto_id": 7,
+    "funcionario_id": 3
+  },
+  {
+    "projeto_id": 7,
+    "funcionario_id": 4
+  },
+  {
+    "projeto_id": 7,
+    "funcionario_id": 5
+  },
+  {
+    "projeto_id": 8,
+    "funcionario_id": 2
+  },
+  {
+    "projeto_id": 8,
+    "funcionario_id": 3
+  },
+  {
+    "projeto_id": 8,
+    "funcionario_id": 6
+  }
+]

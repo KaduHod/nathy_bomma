@@ -1,0 +1,6 @@
+[
+  { "id": 1, "nome": "Daily" },
+  { "id": 2, "nome": "Weekly" },
+  { "id": 3, "nome": "Monthly" },
+  { "id": 4, "nome": "Yearly" }
+]

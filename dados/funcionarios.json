@@ -1,0 +1,9 @@
+[
+  { "id": 1, "nome": "Natasha",  "email": "natasha@agencia.com",  "cargo": "Social Media" },
+  { "id": 2, "nome": "Fernanda", "email": "fernanda@agencia.com", "cargo": "Social Media" },
+  { "id": 3, "nome": "Claudia",  "email": "claudia@agencia.com",  "cargo": "Social Media" },
+  { "id": 4, "nome": "Miriã",    "email": "miria@agencia.com",    "cargo": "Designer" },
+  { "id": 5, "nome": "Rafael",   "email": "rafael@agencia.com",   "cargo": "Designer" },
+  { "id": 6, "nome": "Beatriz",  "email": "beatriz@agencia.com",  "cargo": "Designer" },
+  { "id": 7, "nome": "Lucas",    "email": "lucas@agencia.com",    "cargo": "Audiovisual" }
+]

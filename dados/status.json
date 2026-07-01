@@ -1,0 +1,17 @@
+[
+  { "id": 1,  "nome": "A fazer" },
+  { "id": 2,  "nome": "Reunião agendada" },
+  { "id": 3,  "nome": "Briefing em construção" },
+  { "id": 4,  "nome": "Briefing finalizado" },
+  { "id": 5,  "nome": "Aguardando materiais" },
+  { "id": 6,  "nome": "Em desenvolvimento" },
+  { "id": 7,  "nome": "Pronto para aprovação" },
+  { "id": 8,  "nome": "Em aprovação" },
+  { "id": 9,  "nome": "Em Alteração" },
+  { "id": 10, "nome": "Ajustes" },
+  { "id": 11, "nome": "Pronto para agendamento" },
+  { "id": 12, "nome": "Em agendamento" },
+  { "id": 13, "nome": "Aprovado" },
+  { "id": 14, "nome": "Finalizado" },
+  { "id": 15, "nome": "Cancelado" }
+]
