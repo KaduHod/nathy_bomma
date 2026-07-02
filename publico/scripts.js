@@ -291,7 +291,7 @@
             <div class="triage-grid">${cards}</div>`;
     }
 function renderTriage(){
-    const list = Object.values(DATA.projetos_criticos || {})
+    const list = (DATA.projetos_criticos || [])
         .filter(p => p.categoria !== 'cancelado')
         .map(p => ({ p }))
         .slice(0, 8);
@@ -307,50 +307,59 @@ function renderTriage(){
 
     const cards = list.map(({p}) => {
 
-        const notif = (p.notificacoes || []).slice(0,3);
-
-        const rs = notif.map(n => {
-
-            const cls =
-                n.status?.toLowerCase().includes('alteração') ? 'r-crit' :
-                n.status?.toLowerCase().includes('aprovação') ? 'r-warn' :
-                '';
-
-            return `<span class="rchip ${cls}">
-                ${esc(n.comentario || '—')}
-            </span>`;
-        }).join('');
-
         const sev =
-            p.categoria === 'critico' ? 'sev-alerta' :
-            p.categoria === 'em_alerta' ? 'sev-atencao' :
-            'sev-stale';
+            p.categoria === 'critico'
+                ? 'sev-alerta'
+                : p.categoria === 'em_alerta'
+                    ? 'sev-atencao'
+                    : 'sev-stale';
 
-        return `<div class="tcard ${sev}">
-            <div class="tc-top">
-                <div>
-                    <div class="tc-name">${esc(p.projeto)}</div>
-                    <div class="tc-id mono">${esc(p.cliente || '—')}</div>
+        const info = `
+            <span class="rchip ${p.qtd_alteracoes > 0 ? 'r-warn' : ''}">
+                <b>${p.qtd_alteracoes}</b>&nbsp;${p.qtd_alteracoes == 1 ? 'retrabalho' : 'retrabalhos'}
+            </span>
+
+            <span class="rchip ${p.vencido === 'S' ? 'r-crit' : ''}">
+                ${
+                    p.vencido === 'S'
+                        ? '<b>Vencido</b>'
+                        : `Vence em <b>${fmtDate(p.data_vencimento)}</b>`
+                }
+            </span>
+        `;
+
+        return `
+            <div class="tcard ${sev}">
+                <div class="tc-top">
+                    <div>
+                        <div class="tc-name">${esc(p.projeto)}</div>
+                        <div class="tc-id mono">${esc(p.cliente || '—')}</div>
+                    </div>
+
+                    <div class="tc-score" style="font-size:11px;color:var(--text-dim)">
+                        ${esc(p.categoria)}
+                    </div>
                 </div>
 
-                <div class="tc-score" style="font-size:11px; color:var(--text-dim)">
-                    ${p.categoria}
+                <div class="tc-reasons">
+                    ${info}
                 </div>
             </div>
-
-            <div class="tc-reasons">
-                ${rs || '<span class="rchip">—</span>'}
-            </div>
-        </div>`;
+        `;
     }).join('');
 
     el.innerHTML = `
         <div class="triage-head">
             <span class="pulse"></span>
             <h2>Atenção imediata</h2>
-            <span class="count">${list.length} projetos ordenados por criticidade</span>
+            <span class="count">
+                ${list.length} ${list.length === 1 ? 'projeto' : 'projetos'} ordenados por criticidade
+            </span>
         </div>
-        <div class="triage-grid">${cards}</div>
+
+        <div class="triage-grid">
+            ${cards}
+        </div>
     `;
 }
 

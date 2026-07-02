@@ -63,57 +63,43 @@ async function carregarDados() {
     const resumo_por_status = resumo_por_status_query[0].reduce((acc, curr) => { acc[curr.nome] = curr.total; return acc; }, {});
 
 
-    const [rows_projeto_status_e_tres_ultimas_notificacoes] = await db.query(
+    const [projetos_criticos] = await db.query(
         `
-        SELECT
+       SELECT
             vps.nome as projeto,
             c.nome as cliente,
-            n.comentario,
-            s.nome as status,
-            n.data,
             vps.categoria,
             vps.qtd_alteracoes,
-            vps.data_vencimento
+            vps.data_vencimento,
+            case when vps.data_vencimento < now() then 'S' else 'N' end as vencido
         FROM vw_projeto_saude vps
         JOIN cliente c ON c.id = vps.cliente_id
-        JOIN notificacao n ON n.projeto_id = vps.id
-        JOIN status s ON s.id = n.alteracao_status_id
-        WHERE (
-            SELECT COUNT(*)
-            FROM notificacao n2
-            WHERE n2.projeto_id = vps.id
-              AND (
-                  (n2.data > n.data)
-                  OR (n2.data = n.data AND n2.id <= n.id)
-              )
-        ) <= 3 and (vps.categoria collate utf8mb4_0900_ai_ci) in ('em_alerta', 'critico')
+        ##JOIN notificacao n ON n.projeto_id = vps.id
+
+        WHERE (vps.categoria collate utf8mb4_0900_ai_ci) in ('em_alerta', 'critico')
         ORDER BY
             CASE
                 WHEN (vps.categoria = 'critico' collate utf8mb4_0900_ai_ci) THEN 1
                 WHEN (vps.categoria = 'em_alerta' collate utf8mb4_0900_ai_ci) THEN 2
                 ELSE 3
             END,
-            vps.id,
-            (n.data IS NULL) DESC,
-            n.data ASC;
-
-
+            vps.id
         `
     );
-    const projetos_criticos = {}
-    rows_projeto_status_e_tres_ultimas_notificacoes.forEach(i => {
-        if(!projetos_criticos[i.projeto]) {
-            projetos_criticos[i.projeto] = {
-                projeto: i.projeto,
-                cliente: i.cliente,
-                categoria: i.categoria,
-                notificacoes: []
-            }
-        }
-        projetos_criticos[i.projeto].notificacoes.push({comentario:i.comentario,status:i.status,data:i.data})
-    })
+
     console.log(projetos_criticos)
-    return { clientes, funcionarios, status, frequencias, projetos, projetoFuncionario, notificacoes, resumo:rows.pop(), resumo_por_status: resumo_por_status, projetos_criticos, projetos_criticos };
+    return {
+        clientes,
+        funcionarios,
+        status,
+        frequencias,
+        projetos,
+        projetoFuncionario,
+        notificacoes,
+        resumo:rows.pop(),
+        resumo_por_status: resumo_por_status,
+        projetos_criticos
+    };
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -138,7 +124,7 @@ function diffDias(dataInicio, dataFim) {
 //   historico_projeto → linha do tempo de notificações por projeto
 
 app.get("/api/dashboard", async (req, res) => {
-    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos} = await carregarDados();
+    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos } = await carregarDados();
 
     // Lookups rápidos por id
     const clienteMap     = Object.fromEntries(clientes.map(c => [c.id, c]));
