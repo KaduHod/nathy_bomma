@@ -124,7 +124,23 @@ h1{font-family:var(--font-display); font-weight:600; font-size:27px; letter-spac
 .tcard .tc-id{font-size:10.5px; color:var(--text-faint); margin-top:2px;}
 .tcard .tc-score{font-family:var(--font-display); font-weight:700; font-size:15px; flex:none;}
 .tcard .tc-reasons{display:flex; flex-wrap:wrap; gap:5px; margin-top:11px;}
-.rchip{font-size:10.5px; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,.05); color:var(--text-dim); border:1px solid var(--border-soft); display:inline-flex; gap:5px; align-items:center; white-space:nowrap;}
+/* .rchip{font-size:10.5px; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,.05); color:var(--text-dim); border:1px solid var(--border-soft); display:inline-flex; gap:5px; align-items:center; white-space:nowrap;} */
+.rchip{
+    font-size:10.5px;
+    padding:3px 8px;
+    border-radius:6px;
+    background:rgba(255,255,255,.05);
+    color:var(--text-dim);
+    border:1px solid var(--border-soft);
+    display:inline-flex;
+    gap:5px;
+    align-items:center;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width: 180px; /* ou 100% dependendo do layout */
+}
 .rchip b{color:var(--text); font-weight:600;}
 .rchip.r-crit{background:rgba(251,113,133,.1); color:#ffb3bf; border-color:rgba(251,113,133,.25);}
 .rchip.r-warn{background:rgba(251,191,36,.1); color:#ffe08a; border-color:rgba(251,191,36,.22);}

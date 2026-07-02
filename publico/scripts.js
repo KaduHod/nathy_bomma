@@ -141,6 +141,7 @@
             const res = await fetch('/api/dashboard',{cache:'no-store'});
             if(!res.ok) throw new Error('HTTP '+res.status);
             DATA = await res.json();
+            console.log(DATA)
             prep(); renderAll(); showState('ready');
         }catch(err){ console.error(err); showError(err); }
     }
@@ -261,7 +262,7 @@
             `).join('');
     }
     // ── Triage / atenção imediata ────────────────────────────
-    function renderTriage(){
+    function renderTriage_(){
         const list = (DATA.projetos_lista||[])
             .filter(p=>p.status_id!==CANCEL)
             .map(p=>({p, dias:DIAS[p.id], score:critScore(p,DIAS[p.id])}))
@@ -289,6 +290,69 @@
             <div class="triage-head"><span class="pulse"></span><h2>Atenção imediata</h2><span class="count">${list.length} ${list.length===1?'projeto':'projetos'} ordenados por criticidade</span></div>
             <div class="triage-grid">${cards}</div>`;
     }
+function renderTriage(){
+    const list = Object.values(DATA.projetos_criticos || {})
+        .filter(p => p.categoria !== 'cancelado')
+        .map(p => ({ p }))
+        .slice(0, 8);
+
+    const el = $('#triage');
+
+    if(!list.length){
+        el.innerHTML = `<div class="panel" style="text-align:center; color:var(--text-dim)">
+            Nada crítico no momento — todos os projetos dentro dos parâmetros. ✦
+        </div>`;
+        return;
+    }
+
+    const cards = list.map(({p}) => {
+
+        const notif = (p.notificacoes || []).slice(0,3);
+
+        const rs = notif.map(n => {
+
+            const cls =
+                n.status?.toLowerCase().includes('alteração') ? 'r-crit' :
+                n.status?.toLowerCase().includes('aprovação') ? 'r-warn' :
+                '';
+
+            return `<span class="rchip ${cls}">
+                ${esc(n.comentario || '—')}
+            </span>`;
+        }).join('');
+
+        const sev =
+            p.categoria === 'critico' ? 'sev-alerta' :
+            p.categoria === 'em_alerta' ? 'sev-atencao' :
+            'sev-stale';
+
+        return `<div class="tcard ${sev}">
+            <div class="tc-top">
+                <div>
+                    <div class="tc-name">${esc(p.projeto)}</div>
+                    <div class="tc-id mono">${esc(p.cliente || '—')}</div>
+                </div>
+
+                <div class="tc-score" style="font-size:11px; color:var(--text-dim)">
+                    ${p.categoria}
+                </div>
+            </div>
+
+            <div class="tc-reasons">
+                ${rs || '<span class="rchip">—</span>'}
+            </div>
+        </div>`;
+    }).join('');
+
+    el.innerHTML = `
+        <div class="triage-head">
+            <span class="pulse"></span>
+            <h2>Atenção imediata</h2>
+            <span class="count">${list.length} projetos ordenados por criticidade</span>
+        </div>
+        <div class="triage-grid">${cards}</div>
+    `;
+}
 
     // ── Charts ───────────────────────────────────────────────
     function chartBase(){
