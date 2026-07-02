@@ -392,8 +392,12 @@ function renderTriage(){
 
     function renderChartSaude(){
         if(!window.Chart) return; chartBase();
-        const s=DATA.resumo?.por_saude||{};
-        const rows=[['Saudável',s.saudavel||0,'#34D399'],['Atenção',s.atencao||0,'#FBBF24'],['Alerta',s.alerta||0,'#FB7185'],['Cancelado',s.cancelado||0,'#64748B']].filter(r=>r[1]>0);
+        let s=DATA.projetos_por_saude||{};
+        s = s.reduce((acc, curr) => {
+            acc[curr.categoria] = curr.total
+            return acc
+        }, {})
+        const rows=[['Saudável',s['saudavel']||0,'#34D399'],['Crítico',s['critico']||0,'#FB7185'],['Alerta',s['em_alerta']||0,'#FBBF24'],['Cancelado',s['cancelado']||0,'#64748B']];//.filter(r=>r[1]>0);
         const total=rows.reduce((a,r)=>a+r[1],0);
         charts.saude?.destroy();
         charts.saude = new Chart($('#chartSaude'),{

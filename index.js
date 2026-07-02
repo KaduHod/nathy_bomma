@@ -87,7 +87,11 @@ async function carregarDados() {
         `
     );
 
-    console.log(projetos_criticos)
+    const [projetos_por_saude] = await db.query(`
+        select count(vps.id) as total, vps.categoria from vw_projeto_saude vps
+        group by categoria
+    `);
+
     return {
         clientes,
         funcionarios,
@@ -98,7 +102,8 @@ async function carregarDados() {
         notificacoes,
         resumo:rows.pop(),
         resumo_por_status: resumo_por_status,
-        projetos_criticos
+        projetos_criticos,
+        projetos_por_saude
     };
 }
 
@@ -124,7 +129,7 @@ function diffDias(dataInicio, dataFim) {
 //   historico_projeto → linha do tempo de notificações por projeto
 
 app.get("/api/dashboard", async (req, res) => {
-    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos } = await carregarDados();
+    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos, projetos_por_saude } = await carregarDados();
 
     // Lookups rápidos por id
     const clienteMap     = Object.fromEntries(clientes.map(c => [c.id, c]));
@@ -360,7 +365,8 @@ app.get("/api/dashboard", async (req, res) => {
         por_funcionario,
         historico_projeto,
         resumo_por_status,
-        projetos_criticos
+        projetos_criticos,
+        projetos_por_saude
     });
 });
 
