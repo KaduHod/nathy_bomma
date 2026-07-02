@@ -1,6 +1,18 @@
 (function(){
     "use strict";
+    function fmtDate(data){
+        if(!data) return '—';
 
+        const d = new Date(data);
+
+        if(isNaN(d.getTime())) return '—';
+
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const ano = d.getFullYear();
+
+        return `${dia}/${mes}/${ano}`;
+    }
     // ── Constantes de domínio ────────────────────────────────
     const REF = new Date(2025,6,31);            // data de referência do mock (31/07/2025)
     const FINAL = new Set([13,14]);             // Aprovado, Finalizado
@@ -239,12 +251,6 @@
         const total = Object.values(r).reduce((a, b) => a + b, 0);
 
         const cards = [
-            {
-                label: 'Total de projetos',
-                num: total,
-                foot: 'no mês de referência',
-                cls: ''
-            },
             ...order.map(status => ({
                 label: capitalize(status),
                 num: r[status] ?? 0,
