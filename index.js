@@ -23,7 +23,7 @@ function lerJSON(arquivo) {
     return JSON.parse(readFileSync(caminho, "utf-8"));
 }
 
-function carregarDados() {
+async function carregarDados() {
     const clientes           = lerJSON("clientes.json");
     const funcionarios       = lerJSON("funcionarios.json");
     const status             = lerJSON("status.json");
@@ -31,8 +31,38 @@ function carregarDados() {
     const projetos           = lerJSON("projetos.json");
     const projetoFuncionario = lerJSON("projeto_funcionario.json");
     const notificacoes       = lerJSON("notificacoes.json");
+    const [ rows ] = await db.query(`select
+        count(p.id) as total_projetos,
+        (select count(vps.id) from vw_projeto_saude vps where categoria = 'em_alerta' collate utf8mb4_0900_ai_ci) as total_alerta,
+        (select count(vps.id) from vw_projeto_saude vps where categoria = 'critico' collate utf8mb4_0900_ai_ci) as total_critico,
+        (select count(vps.id) from vw_projeto_saude vps where categoria = 'saudavel' collate utf8mb4_0900_ai_ci) as total_saudavel
+        from projeto p`);
+    const resumo_por_status_query = await db.query(`
 
-    return { clientes, funcionarios, status, frequencias, projetos, projetoFuncionario, notificacoes };
+        SELECT COUNT(s.id) as total, s.nome
+        FROM status s
+        LEFT JOIN projeto p ON p.status_id = s.id
+        WHERE s.nome IN (
+            'A fazer',
+            'Briefing em construção',
+            'Em desenvolvimento',
+            'Pronto pra aprovação',
+            'Em aprovação',
+            'Em Alteração'
+        )
+        GROUP BY s.nome
+        ORDER BY CASE s.nome
+        WHEN 'A fazer' THEN 1
+        WHEN 'Briefing em construção' THEN 2
+        WHEN 'Em desenvolvimento' THEN 3
+        WHEN 'Pronto pra aprovação' THEN 4
+        WHEN 'Em aprovação' then 5
+        WHEN 'Em Alteração' THEN 6
+        END;
+        `);
+    const resumo_por_status = resumo_por_status_query[0].reduce((acc, curr) => { acc[curr.nome] = curr.total; return acc; }, {});
+    console.log(resumo_por_status)
+    return { clientes, funcionarios, status, frequencias, projetos, projetoFuncionario, notificacoes, resumo:rows.pop(), resumo_por_status: resumo_por_status};
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -56,8 +86,8 @@ function diffDias(dataInicio, dataFim) {
 //   alertas_prazo     → projetos que violaram os prazos operacionais do mês
 //   historico_projeto → linha do tempo de notificações por projeto
 
-app.get("/api/dashboard", (req, res) => {
-    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes } = carregarDados();
+app.get("/api/dashboard", async (req, res) => {
+    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status} = await carregarDados();
 
     // Lookups rápidos por id
     const clienteMap     = Object.fromEntries(clientes.map(c => [c.id, c]));
@@ -212,17 +242,6 @@ app.get("/api/dashboard", (req, res) => {
         p.alertas_prazo.some(a => ["nao_aprovado_no_mes", "aprovacao_final_atrasada"].includes(a.tipo))
     ).length;
 
-    const resumo = {
-        total_projetos: total,
-        concluidos: projetos_lista.filter(p => STATUS_FINALIZADO.includes(p.status_id)).length,
-        em_andamento: projetos_lista.filter(p =>
-            ![STATUS_CANCELADO, ...STATUS_FINALIZADO].includes(p.status_id)
-        ).length,
-        cancelados: projetos_lista.filter(p => p.status_id === STATUS_CANCELADO).length,
-        em_atraso,
-        por_saude,
-    };
-
     // ── Por status ────────────────────────────────────────────────────────────
 
     const contagemStatus = {};
@@ -303,6 +322,7 @@ app.get("/api/dashboard", (req, res) => {
         por_cliente,
         por_funcionario,
         historico_projeto,
+        resumo_por_status,
     });
 });
 

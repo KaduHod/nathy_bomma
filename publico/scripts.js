@@ -183,34 +183,83 @@
     }
 
     // ── Top meta ─────────────────────────────────────────────
+
     function renderTopMeta(){
-        const r=DATA.resumo||{}; const s=r.por_saude||{};
-        const chips=[
-            {n:r.total_projetos??0, l:'Projetos', cls:''},
-            {n:s.alerta??0, l:'Em alerta', cls:(s.alerta>0?'is-crit':'')},
-            {n:r.em_atraso??0, l:'Em atraso', cls:(r.em_atraso>0?'is-warn':'')}
+        const r = DATA.resumo || {};
+
+        const chips = [
+            { n: r.total_projetos ?? 0, l: 'Projetos', cls: '' },
+            { n: r.total_saudavel ?? 0, l: 'Saudável', cls: '' },
+            { n: r.total_alerta ?? 0, l: 'Em alerta', cls: (r.total_alerta > 0 ? 'is-warn' : '') },
+            { n: r.total_critico ?? 0, l: 'Críticos', cls: (r.total_critico > 0 ? 'is-crit' : '') }
         ];
-        $('#topMeta').innerHTML = chips.map(c=>`<div class="tchip ${c.cls}"><span class="n">${c.n}</span><span class="l">${c.l}</span></div>`).join('');
+
+        $('#topMeta').innerHTML = chips.map(c => `
+            <div class="tchip ${c.cls}">
+                <span class="n">${c.n}</span>
+                <span class="l">${c.l}</span>
+            </div>
+        `).join('');
     }
 
     // ── KPIs ─────────────────────────────────────────────────
+
     function renderKPIs(){
-        const r=DATA.resumo||{}; const s=r.por_saude||{};
-        const cards=[
-            {label:'Total de projetos', num:r.total_projetos??0, foot:'no mês de referência', cls:''},
-            {label:'Em andamento', num:r.em_andamento??0, foot:'fora de concluído/cancelado', cls:''},
-            {label:'Concluídos', num:r.concluidos??0, foot:'aprovados ou finalizados', cls:'k-ok'},
-            {label:'Em atraso', num:r.em_atraso??0, foot:'não aprovados no prazo', cls:(r.em_atraso>0?'k-crit':'k-mut')},
-            {label:'Carteira em risco', num:(s.alerta??0)+(s.atencao??0), foot:`${s.alerta??0} alerta · ${s.atencao??0} atenção`, cls:((s.alerta??0)>0?'k-warn':'')}
+        const r = DATA.resumo_por_status || {};
+
+        const capitalize = (str) =>
+            str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+
+        const getClass = (status) => {
+            switch(status) {
+                case 'A fazer':
+                    return 'k-mut';
+                case 'Briefing em construção':
+                    return 'k-ok';
+                case 'Em desenvolvimento':
+                    return 'k-ok';
+                case 'Em aprovação':
+                    return 'k-warn';
+                case 'Em Alteração':
+                    return 'k-crit';
+                default:
+                    return 'k-mut';
+            }
+        };
+
+        const order = [
+            'A fazer',
+            'Briefing em construção',
+            'Em desenvolvimento',
+            'Em aprovação',
+            'Em Alteração'
         ];
-        $('#kpis').innerHTML = cards.map(c=>`
+
+        const total = Object.values(r).reduce((a, b) => a + b, 0);
+
+        const cards = [
+            {
+                label: 'Total de projetos',
+                num: total,
+                foot: 'no mês de referência',
+                cls: ''
+            },
+            ...order.map(status => ({
+                label: capitalize(status),
+                num: r[status] ?? 0,
+                foot: 'Projetos neste status',
+                cls: getClass(status)
+            }))
+        ];
+
+        $('#kpis').innerHTML = cards.map(c => `
             <div class="kpi ${c.cls}">
             <div class="k-label">${c.label}</div>
             <div class="k-num">${c.num}</div>
             <div class="k-foot">${c.foot}</div>
-            </div>`).join('');
+            </div>
+            `).join('');
     }
-
     // ── Triage / atenção imediata ────────────────────────────
     function renderTriage(){
         const list = (DATA.projetos_lista||[])
