@@ -223,7 +223,8 @@ async function carregarDados() {
 			f.nome as funcionario,
 			f.cargo,
 			DATEDIFF(NOW(), (select max(data) from projeto_status where projeto_id = vps.id)) AS dias_parado,
-			calcular_score(vps.categoria, vps.qtd_alteracoes) as score
+			calcular_score(vps.categoria, vps.qtd_alteracoes) as score,
+            vps.categoria as saude
 		from vw_projeto_saude vps
 		join status s on s.id = vps.status_id
 		join cliente c on c.id = vps.cliente_id
