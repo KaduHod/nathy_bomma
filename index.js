@@ -8,15 +8,15 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 const PORT = 3000;
 
-// Serve arquivos estÃ¡ticos (o dashboard.html vai ficar na raiz)
+// Serve arquivos estáticos (o dashboard.html vai ficar na raiz)
 app.use(express.static(join(__dirname ,"publico")));
 
-// Rota raiz â entrega o dashboard em http://localhost:3000/
+// Rota raiz → entrega o dashboard em http://localhost:3000/
     app.get("/", async (req, res) => {
         res.sendFile(join(__dirname, "publico/dashboard.html"));
     });
 
-// âââ Leitura dos JSONs ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Leitura dos JSONs ────────────────────────────────────────────────────────
 
 function lerJSON(arquivo) {
     const caminho = join(__dirname, "dados", arquivo);
@@ -43,20 +43,20 @@ async function carregarDados() {
         FROM status s
         LEFT JOIN projeto p ON p.status_id = s.id
         WHERE s.nome IN (
-            'Briefing em construÃ§Ã£o',
+            'Briefing em construção',
             'Em desenvolvimento',
-            'Pronto pra aprovaÃ§Ã£o',
-            'Em aprovaÃ§Ã£o',
-            'Em AlteraÃ§Ã£o'
+            'Pronto pra aprovação',
+            'Em aprovação',
+            'Em Alteração'
         )
         GROUP BY s.nome
         ORDER BY CASE s.nome
         WHEN 'A fazer' THEN 1
-        WHEN 'Briefing em construÃ§Ã£o' THEN 2
+        WHEN 'Briefing em construção' THEN 2
         WHEN 'Em desenvolvimento' THEN 3
-        WHEN 'Pronto pra aprovaÃ§Ã£o' THEN 4
-        WHEN 'Em aprovaÃ§Ã£o' then 5
-        WHEN 'Em AlteraÃ§Ã£o' THEN 6
+        WHEN 'Pronto pra aprovação' THEN 4
+        WHEN 'Em aprovação' then 5
+        WHEN 'Em Alteração' THEN 6
         END;
         `);
     const resumo_por_status = resumo_por_status_query[0].reduce((acc, curr) => { acc[curr.nome] = curr.total; return acc; }, {});
@@ -180,7 +180,7 @@ async function carregarDados() {
     };
 }
 
-// âââ Helpers âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 function diffDias(dataInicio, dataFim) {
     const d1 = new Date(dataInicio);
@@ -188,18 +188,18 @@ function diffDias(dataInicio, dataFim) {
     return Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
 }
 
-// âââ Endpoint principal do dashboard âââââââââââââââââââââââââââââââââââââââââ
+// ─── Endpoint principal do dashboard ─────────────────────────────────────────
 //
     // GET /api/dashboard
-// Retorna tudo que o front precisa em uma Ãºnica chamada.
-    // SeÃ§Ãµes:
-//   resumo            â cards do topo (totais e status geral)
-//   projetos_lista    â tabela completa de projetos com campos enriquecidos
-//   por_status        â contagem de projetos por status (para grÃ¡fico de barras)
-//   por_cliente       â projetos por cliente com indicador de saÃºde
-//   por_funcionario   â tempo mÃ©dio e assertividade por funcionÃ¡rio
-//   alertas_prazo     â projetos que violaram os prazos operacionais do mÃªs
-//   historico_projeto â linha do tempo de notificaÃ§Ãµes por projeto
+// Retorna tudo que o front precisa em uma única chamada.
+    // Seções:
+//   resumo            → cards do topo (totais e status geral)
+//   projetos_lista    → tabela completa de projetos com campos enriquecidos
+//   por_status        → contagem de projetos por status (para gráfico de barras)
+//   por_cliente       → projetos por cliente com indicador de saúde
+//   por_funcionario   → tempo médio e assertividade por funcionário
+//   alertas_prazo     → projetos que violaram os prazos operacionais do mês
+//   historico_projeto → linha do tempo de notificações por projeto
 
 app.get("/api/dashboard", async (req, res) => {
     const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos, projetos_por_saude, 
@@ -208,33 +208,33 @@ app.get("/api/dashboard", async (req, res) => {
 
 	} = await carregarDados();
 
-    // Lookups rÃ¡pidos por id
+    // Lookups rápidos por id
     const clienteMap     = Object.fromEntries(clientes.map(c => [c.id, c]));
     const funcionarioMap = Object.fromEntries(funcionarios.map(f => [f.id, f]));
     const statusMap      = Object.fromEntries(status.map(s => [s.id, s]));
 
-    // FuncionÃ¡rios de cada projeto
+    // Funcionários de cada projeto
     const funcsPorProjeto = {};
     for (const rel of projetoFuncionario) {
         if (!funcsPorProjeto[rel.projeto_id]) funcsPorProjeto[rel.projeto_id] = [];
         funcsPorProjeto[rel.projeto_id].push(funcionarioMap[rel.funcionario_id]);
     }
 
-    // NotificaÃ§Ãµes de cada projeto
+    // Notificações de cada projeto
     const notifsPorProjeto = {};
     for (const n of notificacoes) {
         if (!notifsPorProjeto[n.projeto_id]) notifsPorProjeto[n.projeto_id] = [];
         notifsPorProjeto[n.projeto_id].push(n);
     }
 
-    // ââ Indicador de saÃºde ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    // ── Indicador de saúde ────────────────────────────────────────────────────
     // Regras:
-    //   > 2 ajustes/alteraÃ§Ãµes + atraso  â alerta
-    //   > 2 ajustes/alteraÃ§Ãµes + no prazo â atencao
-    //   â¤ 1 ajuste + no prazo             â saudavel
-    //   demais                            â atencao
+    //   > 2 ajustes/alterações + atraso  → alerta
+    //   > 2 ajustes/alterações + no prazo → atencao
+    //   ≤ 1 ajuste + no prazo             → saudavel
+    //   demais                            → atencao
 
-    const STATUS_ALTERACAO = [9, 10]; // "Em AlteraÃ§Ã£o" e "Ajustes"
+    const STATUS_ALTERACAO = [9, 10]; // "Em Alteração" e "Ajustes"
     const STATUS_FINALIZADO = [13, 14]; // "Aprovado" e "Finalizado"
     const STATUS_CANCELADO = 15;
 
@@ -244,7 +244,7 @@ app.get("/api/dashboard", async (req, res) => {
         const notifs = notifsPorProjeto[projeto.id] || [];
         const totalAjustes = notifs.filter(n => STATUS_ALTERACAO.includes(n.alteracao_status_id)).length;
 
-        const hoje = new Date("2025-07-31"); // data de referÃªncia do mock
+        const hoje = new Date("2025-07-31"); // data de referência do mock
         const vencimento = new Date(projeto.data_vencimento);
         const concluido = projeto.data_conclusao ? new Date(projeto.data_conclusao) : null;
 
@@ -258,12 +258,12 @@ app.get("/api/dashboard", async (req, res) => {
         return "atencao";
     }
 
-    // ââ Alertas de prazo âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    // ── Alertas de prazo ─────────────────────────────────────────────────────
     // Prazos operacionais mensais:
-    //   dia 10 â briefing finalizado (status_id 4) â Social Media
-    //   dia 25 â em aprovaÃ§Ã£o (status_id 8)
-    //   dia 10 â nenhum projeto em aguardando materiais (status_id 5)
-    //   dia 30 â aprovado (status_id 13)
+    //   dia 10 → briefing finalizado (status_id 4) — Social Media
+    //   dia 25 → em aprovação (status_id 8)
+    //   dia 10 → nenhum projeto em aguardando materiais (status_id 5)
+    //   dia 30 → aprovado (status_id 13)
 
     function verificarPrazos(projeto) {
         const alertas = [];
@@ -280,27 +280,27 @@ app.get("/api/dashboard", async (req, res) => {
             alertas.push({ tipo: "briefing_sem_registro", descricao: "Sem registro de briefing finalizado" });
         }
 
-        // Data em que entrou em aprovaÃ§Ã£o (status 8) â pega a primeira vez
+        // Data em que entrou em aprovação (status 8) — pega a primeira vez
         const aprovNotif = notifs.find(n => n.alteracao_status_id === 8);
         if (aprovNotif) {
             const diaAprov = new Date(aprovNotif.data).getDate();
             if (diaAprov > 25) {
-                alertas.push({ tipo: "aprovacao_atrasada", descricao: `Entrou em aprovaÃ§Ã£o no dia ${diaAprov} (prazo: dia 25)` });
+                alertas.push({ tipo: "aprovacao_atrasada", descricao: `Entrou em aprovação no dia ${diaAprov} (prazo: dia 25)` });
             }
         } else if (![STATUS_CANCELADO, 1, 2, 3, 4, 5, 6].includes(projeto.status_id)) {
-            alertas.push({ tipo: "sem_aprovacao", descricao: "Projeto nÃ£o chegou Ã  aprovaÃ§Ã£o no mÃªs" });
+            alertas.push({ tipo: "sem_aprovacao", descricao: "Projeto não chegou à aprovação no mês" });
         }
 
         // Projeto ficou em "Aguardando materiais" depois do dia 10
         const aguardNotif = notifs.find(n => n.alteracao_status_id === 5);
         if (aguardNotif && new Date(aguardNotif.data).getDate() > 10) {
-            alertas.push({ tipo: "materiais_atrasados", descricao: "Aguardando materiais apÃ³s dia 10" });
+            alertas.push({ tipo: "materiais_atrasados", descricao: "Aguardando materiais após dia 10" });
         }
         if (projeto.status_id === 5) {
             alertas.push({ tipo: "ainda_aguardando_materiais", descricao: "Projeto ainda aguardando materiais" });
         }
 
-        // Aprovado atÃ© dia 30?
+        // Aprovado até dia 30?
             const finalNotif = notifs.find(n => STATUS_FINALIZADO.includes(n.alteracao_status_id));
         if (finalNotif) {
             const diaFinal = new Date(finalNotif.data).getDate();
@@ -308,13 +308,13 @@ app.get("/api/dashboard", async (req, res) => {
                 alertas.push({ tipo: "aprovacao_final_atrasada", descricao: `Aprovado no dia ${diaFinal} (prazo: dia 30)` });
             }
         } else if (projeto.status_id !== STATUS_CANCELADO && !STATUS_FINALIZADO.includes(projeto.status_id)) {
-            alertas.push({ tipo: "nao_aprovado_no_mes", descricao: "Projeto nÃ£o foi aprovado atÃ© o final do mÃªs" });
+            alertas.push({ tipo: "nao_aprovado_no_mes", descricao: "Projeto não foi aprovado até o final do mês" });
         }
 
         return alertas;
     }
 
-    // ââ Montar lista de projetos enriquecidos âââââââââââââââââââââââââââââââââ
+    // ── Montar lista de projetos enriquecidos ─────────────────────────────────
 
     const projetos_lista_old = projetos.map(p => {
         const notifs  = (notifsPorProjeto[p.id] || []).sort((a, b) => new Date(a.data) - new Date(b.data));
@@ -347,7 +347,7 @@ app.get("/api/dashboard", async (req, res) => {
         };
     });
 
-    // ââ Resumo (cards do topo) ââââââââââââââââââââââââââââââââââââââââââââââââ
+    // ── Resumo (cards do topo) ────────────────────────────────────────────────
 
     const total = projetos_lista.length;
     const por_saude = {
@@ -357,7 +357,7 @@ app.get("/api/dashboard", async (req, res) => {
         cancelado: projetos_lista.filter(p => p.saude === "cancelado").length,
     };
 
-    // ââ Por status ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    // ── Por status ────────────────────────────────────────────────────────────
 
     const contagemStatus = {};
     for (const p of projetos_lista) {
@@ -365,7 +365,7 @@ app.get("/api/dashboard", async (req, res) => {
     }
     const por_status = Object.entries(contagemStatus).map(([nome, total]) => ({ nome, total }));
 
-    // ââ Por cliente âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    // ── Por cliente ───────────────────────────────────────────────────────────
 
     const dadosCliente = {};
     for (const p of projetos_lista) {
@@ -378,8 +378,8 @@ app.get("/api/dashboard", async (req, res) => {
     }
     const por_cliente = Object.values(dadosCliente);
 
-    // ââ Por funcionÃ¡rio âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-    // Tempo mÃ©dio que cada funcionÃ¡rio passou em projetos
+    // ── Por funcionário ───────────────────────────────────────────────────────
+    // Tempo médio que cada funcionário passou em projetos
     // e taxa de assertividade (projetos sem ajuste / total)
 
     const dadosFuncionario = {};
@@ -411,7 +411,7 @@ app.get("/api/dashboard", async (req, res) => {
         : 0,
     }));
 
-    // ââ HistÃ³rico por projeto (linha do tempo) ââââââââââââââââââââââââââââââââ
+    // ── Histórico por projeto (linha do tempo) ────────────────────────────────
 
     const historico_projeto = projetos.map(p => ({
         projeto_id:  p.id,
@@ -427,7 +427,7 @@ app.get("/api/dashboard", async (req, res) => {
         })),
     }));
 
-    // ââ Resposta final ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    // ── Resposta final ────────────────────────────────────────────────────────
     res.json({
         resumo,
         por_status,
@@ -442,7 +442,7 @@ app.get("/api/dashboard", async (req, res) => {
     });
 });
 
-// âââ Sobe o servidor ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Sobe o servidor ──────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {
     console.log(`Dashboard rodando em http://localhost:${PORT}`);
