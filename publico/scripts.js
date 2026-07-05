@@ -405,7 +405,7 @@ function renderTriage(){
     }
     function renderChartStatus(){
         if(!window.Chart) return; chartBase();
-        const rows=[...(DATA.por_status||[])].sort((a,b)=>b.total-a.total);
+        const rows=[...(DATA.projetos_por_status||[])].sort((a,b)=>b.total-a.total);
         charts.status?.destroy();
         charts.status = new Chart($('#chartStatus'),{
             type:'bar',
@@ -416,7 +416,7 @@ function renderTriage(){
     }
     function renderChartTempo(){
         if(!window.Chart) return; chartBase();
-        const rows = tempoMedioPorStatus(DATA.historico_projeto||[]).slice(0,8);
+        const rows = DATA.media_dias_por_status.map( e => ({...e, media: parseInt(e.media)}));
         charts.tempo?.destroy();
         if(!rows.length){ $('#chartTempo').parentElement.innerHTML='<div style="color:var(--text-faint);font-size:12px;padding:30px 0;text-align:center">Sem transições suficientes no histórico.</div>'; return; }
         charts.tempo = new Chart($('#chartTempo'),{

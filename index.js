@@ -90,6 +90,87 @@ async function carregarDados() {
         select count(vps.id) as total, vps.categoria from vw_projeto_saude vps
         group by categoria
     `);
+    const [projetos_por_status] = await db.query(`
+        SELECT
+            count(t.projeto_id)as total,
+            s.nome
+        FROM
+            (
+            SELECT
+                n.*,
+                ROW_NUMBER() OVER (
+                    PARTITION BY n.projeto_id
+            ORDER BY
+                n.data DESC,
+                n.id DESC
+                ) AS rn
+            FROM
+                notificacao n
+        ) t
+        join status s on
+            s.id = t.alteracao_status_id
+        WHERE
+            t.rn = 1
+        group by
+            s.nome
+        union
+        select
+            0 as total,
+            s2.nome
+        from
+            status s2
+        where
+            s2.id not in (
+            SELECT
+                t.alteracao_status_id
+            FROM
+                (
+                SELECT
+                    n.alteracao_status_id,
+                    ROW_NUMBER() OVER (
+                    PARTITION BY n.projeto_id
+                ORDER BY
+                    n.data DESC,
+                    n.id DESC
+                ) AS rn
+                FROM
+                    notificacao n
+        ) t
+            WHERE
+                t.rn = 1
+        )
+        order by
+            total desc
+
+    `);
+
+    const [media_dias_por_status] = await db.query(`
+        select
+            round(avg(vst.dias_ate_proxima)) as media,
+            s.nome as status
+        from
+            vw_status_tempo vst
+        join status s on
+            s.id = vst.status_id
+        group by
+            s.nome,
+            s.id
+        union
+        select
+            0 as media,
+            s2.nome as status
+        from
+            status s2
+        where
+            s2.id not in (
+            select
+                vst.status_id
+            from
+                vw_status_tempo vst
+        )
+        order by
+            media desc
+    `)
 
 	const [projetos_linha_tempo_rows] = await db.query(`
 		select
@@ -134,7 +215,7 @@ async function carregarDados() {
 	}, {});
 	projetos_linha_tempo = Object.values(projetos_linha_tempo)
 	const [projetos_lista_rows] = await db.query(`
-		select 
+		select
 			vps.nome,
 			vps.qtd_alteracoes,
 			s.nome as status,
@@ -143,16 +224,16 @@ async function carregarDados() {
 			f.cargo,
 			DATEDIFF(NOW(), (select max(data) from projeto_status where projeto_id = vps.id)) AS dias_parado,
 			calcular_score(vps.categoria, vps.qtd_alteracoes) as score
-		from vw_projeto_saude vps 
-		join status s on s.id = vps.status_id 
-		join cliente c on c.id = vps.cliente_id 
-		join projeto_funcionario pf on pf.projeto_id = vps.id 
-		join funcionario f on f.id = pf.funcionario_id 
+		from vw_projeto_saude vps
+		join status s on s.id = vps.status_id
+		join cliente c on c.id = vps.cliente_id
+		join projeto_funcionario pf on pf.projeto_id = vps.id
+		join funcionario f on f.id = pf.funcionario_id
 		order by
 			score desc,
 			vps.id,
 			dias_parado desc
-			
+
 	`);
 	const projetos_lista = Object.values(projetos_lista_rows.reduce((acc, curr) => {
 		if(!acc[curr.nome]) {
@@ -177,6 +258,9 @@ async function carregarDados() {
         projetos_por_saude,
 		projetos_linha_tempo,
 		projetos_lista,
+        projetos_por_status,
+        media_dias_por_status
+
     };
 }
 
@@ -202,11 +286,11 @@ function diffDias(dataInicio, dataFim) {
 //   historico_projeto → linha do tempo de notificações por projeto
 
 app.get("/api/dashboard", async (req, res) => {
-    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos, projetos_por_saude, 
-		projetos_linha_tempo, projetos_lista
 
-
-	} = await carregarDados();
+    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo,
+        resumo_por_status, projetos_criticos, projetos_por_saude, projetos_por_status
+        ,media_dias_por_status, projetos_linha_tempo, projetos_lista
+    } = await carregarDados();
 
     // Lookups rápidos por id
     const clienteMap     = Object.fromEntries(clientes.map(c => [c.id, c]));
@@ -438,7 +522,9 @@ app.get("/api/dashboard", async (req, res) => {
         projetos_criticos,
         projetos_por_saude,
 		projetos_linha_tempo,
-		projetos_lista
+		projetos_lista,
+        projetos_por_status,
+        media_dias_por_status
     });
 });
 
