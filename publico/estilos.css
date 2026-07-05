@@ -237,7 +237,7 @@ tbody tr:last-child td{border-bottom:none;}
 .legend{display:flex; gap:13px; flex-wrap:wrap; align-items:center;}
 .lg{display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--text-dim);}
 .lg .sw{width:11px; height:11px; border-radius:3px;}
-.pipe-scroll{overflow-x:auto; border:1px solid var(--border-soft); border-radius:var(--r); background:var(--surface);}
+.pipe-scroll{border:1px solid var(--border-soft); border-radius:var(--r); background:var(--surface);}
 .pipe{display:grid; grid-template-columns:188px 1fr; min-width:780px;}
 .pipe-labels{border-right:1px solid var(--border);}
 .pipe-axis-pad{height:42px; border-bottom:1px solid var(--border);}

@@ -437,25 +437,56 @@
     }
     const FILTERS = {
         todos: p=>p.status_id!==CANCEL || true,
-        alerta: p=>p.saude==='alerta',
-        atencao: p=>p.saude==='atencao',
-        parado: p=>{ const d=DIAS[p.id]; return d!=null && d>7 && p.status_id!==CANCEL && !FINAL.has(p.status_id); },
-        alertas: p=>(p.alertas_prazo||[]).length>0,
+        alerta: p=>p.saude==='em_alerta',
+        saudavel: p=>p.saude==='saudavel',
+        critico: p=>p.saude==='critico',
         cancelado: p=>p.status_id===CANCEL
     };
-    function renderFilters(){
-        const L=DATA.projetos_lista||[];
-        const defs=[
-            ['todos','Todos', L.length],
-            ['alerta','● Alerta', L.filter(FILTERS.alerta).length],
-            ['atencao','● Atenção', L.filter(FILTERS.atencao).length],
-            ['parado','Parados', L.filter(FILTERS.parado).length],
-            ['alertas','Com alertas', L.filter(FILTERS.alertas).length],
-            ['cancelado','Cancelados', L.filter(FILTERS.cancelado).length]
+    function renderFilters() {
+        const projetos = DATA.projetos_lista || [];
+
+        // Definition of each filter: [key, label, count function]
+        const filterDefs = [
+            ['todos',     'Todos',                 projetos.length],
+            ['critico',  '● Criticos',              projetos.filter(FILTERS.critico).length],
+            ['alerta',   '● Em alerta',           projetos.filter(FILTERS.alerta).length],
+            ['cancelado', 'Cancelados',            projetos.filter(FILTERS.cancelado).length],
         ];
-        $('#filterbar').innerHTML = defs.map(([k,lbl,n])=>`<button class="fbtn ${k===curFilter?'is-active':''}" data-f="${k}">${lbl}<span class="fb-n">${n}</span></button>`).join('');
-        $('#filterbar').onclick = e=>{ const b=e.target.closest('.fbtn'); if(!b) return; curFilter=b.dataset.f; renderFilters(); renderTable(); };
-        $('#tblProjetos thead').onclick = e=>{ const th=e.target.closest('.sortable'); if(!th) return; const k=th.dataset.sort; if(curSort.key===k) curSort.dir*=-1; else { curSort.key=k; curSort.dir=-1; } renderTable(); };
+
+        // Build filter button HTML
+        const buttonsHtml = filterDefs
+            .map(([key, label, count]) => {
+                const activeClass = key === curFilter ? 'is-active' : '';
+                return `<button class="fbtn ${activeClass}" data-f="${key}">${label}<span class="fb-n">${count}</span></button>`;
+            })
+            .join('');
+
+        const filterBar = $('#filterbar');
+        filterBar.innerHTML = buttonsHtml;
+
+        // Click on a filter button → update curFilter and re-render
+        filterBar.onclick = (event) => {
+            const button = event.target.closest('.fbtn');
+            if (!button) return;
+            curFilter = button.dataset.f;
+            renderFilters();
+            renderTable();
+        };
+
+        // Click on a sortable header → change sort key/direction
+        const tableHead = $('#tblProjetos thead');
+        tableHead.onclick = (event) => {
+            const header = event.target.closest('.sortable');
+            if (!header) return;
+            const sortKey = header.dataset.sort;
+            if (curSort.key === sortKey) {
+                curSort.dir *= -1;          // toggle direction
+            } else {
+                curSort.key = sortKey;
+                curSort.dir = -1;           // descending first
+            }
+            renderTable();
+        };
     }
     function sortVal(p,k){
         if(k==='saude') return SAUDE_RANK[p.saude]??9;
@@ -493,6 +524,9 @@
                 </td>
                 </tr>`;
             return;
+        }
+        if(curFilter){
+            rows = rows.filter(FILTERS[curFilter]);
         }
 
         $('#tblBody').innerHTML = rows.map(p=>{
@@ -562,7 +596,6 @@
         }).join('');
     }
 
-    // ââ Prazos âââââââââââââââââââââââââââââââââââââââââââââââ
     function renderPrazos(){
         const L=DATA.projetos_lista||[];
         const groups={}; // key regra -> {rule, items:[{p, descs:[]}]}
@@ -679,76 +712,7 @@
         }).join('');
     }
 
-    // ââ PIPELINE (signature) âââââââââââââââââââââââââââââââââ
-    function buildPipeline_(){
-        const host=$('#pipe'); if(!DATA) return;
-        const projMap={}; for(const p of (DATA.projetos_lista||[])) projMap[p.id]=p;
-
-        const lanesData=(DATA.historico_projeto||[]).map(h=>{
-            const p=projMap[h.projeto_id]||{}; const dias=DIAS[h.projeto_id];
-            return {h, p, dias, score:critScore(p,dias)};
-        }).sort((a,b)=>b.score-a.score);
-
-        // domÃ­nio temporal
-        const ts=[];
-        for(const l of lanesData) for(const e of (l.h.eventos||[])){ const d=parseData(e.data); if(d) ts.push(+d); }
-        if(!ts.length){ host.innerHTML='<div style="padding:40px;text-align:center;color:var(--text-faint)">Sem histÃ³rico para montar a linha do tempo.</div>'; return; }
-        let start=new Date(Math.min(...ts)); start=new Date(start.getFullYear(),start.getMonth(),1);
-        let lastEv=new Date(Math.max(...ts));
-        let end=new Date(Math.max(+lastEv, +REF)); end=new Date(+end+DAY);
-        const span=Math.max(1, end-start);
-        const x=t=> ((t-start)/span)*100;
-
-        // eixo: ticks a cada 5 dias
-        const ticks=[]; const cur=new Date(start);
-        while(cur<=end){ const dom=cur.getDate(); if(dom===1||dom%5===0) ticks.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
-        const mIdx=start.getMonth(), yIdx=start.getFullYear();
-        const deadlines=[
-            {day:10, lbl:'Briefing até 10'},
-            {day:25, lbl:'Em aprovação até 25'},
-            {day:30, lbl:'Aprovado até 30'}
-        ].map(d=>({...d, t:+new Date(yIdx,mIdx,d.day)})).filter(d=>d.t>=+start && d.t<=+end);
-
-        const axisTicks = ticks.map(d=>`<div class="axis-tick" style="left:${x(+d)}%"><span class="at-lbl">${String(d.getDate()).padStart(2,'0')}</span><span class="at-line"></span></div>`).join('');
-        const dlMarks = deadlines.map(d=>`<div class="deadline" style="left:${x(d.t)}%"><span class="dl-lbl">${d.lbl}</span><span class="dl-line"></span></div>`).join('');
-
-        const labelsHTML = lanesData.map(({p,h,dias})=>{
-            const sd=SAUDE[p.saude]||SAUDE.cancelado;
-            const stale = (dias!=null && dias>7 && p.status_id!==CANCEL && !FINAL.has(p.status_id)) ? `<span class="ll-stale">parado ${dias}d</span>` : '';
-            return `<div class="lane-label"><div class="ll-top"><span class="ll-dot" style="background:${sd.dot}"></span><span class="ll-name">${esc(p.nome||h.nome||p.identifier)}</span></div><div class="ll-sub">${esc(p.cliente||p.cenario||'')}${stale}</div></div>`;
-        }).join('');
-
-        const lanesHTML = lanesData.map(({h,p,dias})=>{
-            const ev=eventos(h);
-            const stEv=ev.filter(e=>e.status);
-            let segs='';
-            for(let i=0;i<stEv.length-1;i++){
-                const a=x(+stEv[i]._t), b=x(+stEv[i+1]._t);
-                segs+=`<span class="seg" style="left:${a}%; width:${Math.max(0,b-a)}%; background:${statusColor(stEv[i].status)}"></span>`;
-            }
-            // cauda "parado"
-            if(stEv.length && dias!=null && dias>0 && p.status_id!==CANCEL && !FINAL.has(p.status_id)){
-                const a=x(+stEv[stEv.length-1]._t), b=x(+REF);
-                if(b>a) segs+=`<span class="seg seg-stale" style="left:${a}%; width:${b-a}%"></span>`;
-            }
-            const nodes=ev.map(e=>{
-                const isC=!e.status;
-                const color=isC?'transparent':statusColor(e.status);
-                const isFinal=FINAL.has(statusId(e.status));
-                const tip=JSON.stringify({d:e._t.toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}), s:e.status||'Comentário', f:e.funcionario||'', c:e.cargo||'', m:e.comentario||'', color});
-                return `<span class="node ${isC?'is-comment':''} ${isFinal?'is-final':''}" style="left:${x(+e._t)}%; background:${color}" data-tip='${esc(tip)}'></span>`;
-            }).join('');
-            return `<div class="lane">${segs}${nodes}</div>`;
-        }).join('');
-
-        host.innerHTML = `
-            <div class="pipe-labels"><div class="pipe-axis-pad"></div>${labelsHTML}</div>
-            <div class="pipe-plot">
-            <div class="plot-axis">${axisTicks}${dlMarks}</div>
-            <div class="plot-body">${lanesHTML}</div>
-            </div>`;
-    }
-
+    // PIPELINE (signature)
 
     function buildPipeline() {
         const host = $('#pipe');
@@ -817,6 +781,7 @@
             <span class="dl-line"></span>
             </div>`
         ).join('');
+
         const labelsHTML = lanesData.map(p => {
 
             const sd = SAUDE[p.saude] || SAUDE.cancelado;
