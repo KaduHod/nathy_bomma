@@ -208,10 +208,10 @@
 
         $('#topMeta').innerHTML = chips.map(c => `
             <div class="tchip ${c.cls}">
-                <span class="n">${c.n}</span>
-                <span class="l">${c.l}</span>
+            <span class="n">${c.n}</span>
+            <span class="l">${c.l}</span>
             </div>
-        `).join('');
+            `).join('');
     }
 
     // ── KPIs ─────────────────────────────────────────────────
@@ -292,78 +292,78 @@
             <div class="triage-head"><span class="pulse"></span><h2>Atenção imediata</h2><span class="count">${list.length} ${list.length===1?'projeto':'projetos'} ordenados por criticidade</span></div>
             <div class="triage-grid">${cards}</div>`;
     }
-function renderTriage(){
-    const list = (DATA.projetos_criticos || [])
-        .filter(p => p.categoria !== 'cancelado')
-        .map(p => ({ p }))
-        .slice(0, 8);
+    function renderTriage(){
+        const list = (DATA.projetos_criticos || [])
+            .filter(p => p.categoria !== 'cancelado')
+            .map(p => ({ p }))
+            .slice(0, 8);
 
-    const el = $('#triage');
+        const el = $('#triage');
 
-    if(!list.length){
-        el.innerHTML = `<div class="panel" style="text-align:center; color:var(--text-dim)">
-            Nada crítico no momento — todos os projetos dentro dos parâmetros. ✦
-        </div>`;
-        return;
-    }
+        if(!list.length){
+            el.innerHTML = `<div class="panel" style="text-align:center; color:var(--text-dim)">
+                Nada crítico no momento — todos os projetos dentro dos parâmetros. ✦
+                </div>`;
+            return;
+        }
 
-    const cards = list.map(({p}) => {
+        const cards = list.map(({p}) => {
 
-        const sev =
-            p.categoria === 'critico'
+            const sev =
+                p.categoria === 'critico'
                 ? 'sev-alerta'
                 : p.categoria === 'em_alerta'
-                    ? 'sev-atencao'
-                    : 'sev-stale';
+                ? 'sev-atencao'
+                : 'sev-stale';
 
-        const info = `
-            <span class="rchip ${p.qtd_alteracoes > 0 ? 'r-warn' : ''}">
+            const info = `
+                <span class="rchip ${p.qtd_alteracoes > 0 ? 'r-warn' : ''}">
                 <b>${p.qtd_alteracoes}</b>&nbsp;${p.qtd_alteracoes == 1 ? 'retrabalho' : 'retrabalhos'}
-            </span>
+                </span>
 
-            <span class="rchip ${p.vencido === 'S' ? 'r-crit' : ''}">
+                <span class="rchip ${p.vencido === 'S' ? 'r-crit' : ''}">
                 ${
                     p.vencido === 'S'
                         ? '<b>Vencido</b>'
                         : `Vence em <b>${fmtDate(p.data_vencimento)}</b>`
                 }
-            </span>
-        `;
+                </span>
+                `;
 
-        return `
-            <div class="tcard ${sev}">
+            return `
+                <div class="tcard ${sev}">
                 <div class="tc-top">
-                    <div>
-                        <div class="tc-name">${esc(p.projeto)}</div>
-                        <div class="tc-id mono">${esc(p.cliente || '—')}</div>
-                    </div>
+                <div>
+                <div class="tc-name">${esc(p.projeto)}</div>
+                <div class="tc-id mono">${esc(p.cliente || '—')}</div>
+                </div>
 
-                    <div class="tc-score" style="font-size:11px;color:var(--text-dim)">
-                        ${esc(p.categoria)}
-                    </div>
+                <div class="tc-score" style="font-size:11px;color:var(--text-dim)">
+                ${esc(p.categoria)}
+                </div>
                 </div>
 
                 <div class="tc-reasons">
-                    ${info}
+                ${info}
                 </div>
-            </div>
-        `;
-    }).join('');
+                </div>
+                `;
+        }).join('');
 
-    el.innerHTML = `
-        <div class="triage-head">
+        el.innerHTML = `
+            <div class="triage-head">
             <span class="pulse"></span>
             <h2>Atenção imediata</h2>
             <span class="count">
-                ${list.length} ${list.length === 1 ? 'projeto' : 'projetos'} ordenados por criticidade
+            ${list.length} ${list.length === 1 ? 'projeto' : 'projetos'} ordenados por criticidade
             </span>
-        </div>
+            </div>
 
-        <div class="triage-grid">
+            <div class="triage-grid">
             ${cards}
-        </div>
-    `;
-}
+            </div>
+            `;
+    }
 
     // ── Charts ───────────────────────────────────────────────
     function chartBase(){
@@ -464,104 +464,104 @@ function renderTriage(){
         if(k==='alertas') return (p.alertas_prazo||[]).length;
         return 0;
     }
-function renderTable(){
+    function renderTable(){
 
-    let rows = [...(DATA.projetos_lista || [])];
+        let rows = [...(DATA.projetos_lista || [])];
 
-    if(curSort.key){
-        rows.sort((a,b)=>{
-            const d = (sortVal(a, curSort.key) - sortVal(b, curSort.key)) * curSort.dir;
-            return d || (b.score - a.score);
+        if(curSort.key){
+            rows.sort((a,b)=>{
+                const d = (sortVal(a, curSort.key) - sortVal(b, curSort.key)) * curSort.dir;
+                return d || (b.score - a.score);
+            });
+        }else{
+            rows.sort((a,b)=>b.score-a.score);
+        }
+
+        document.querySelectorAll('#tblProjetos thead .sortable').forEach(th=>{
+            th.classList.toggle('sorted', th.dataset.sort===curSort.key);
+
+            const arr = th.querySelector('.arr');
+            if(arr){
+                arr.textContent = th.dataset.sort === curSort.key ? (curSort.dir < 0 ? '▼' : '▲' ) : '▼';        }
         });
-    }else{
-        rows.sort((a,b)=>b.score-a.score);
-    }
 
-    document.querySelectorAll('#tblProjetos thead .sortable').forEach(th=>{
-        th.classList.toggle('sorted', th.dataset.sort===curSort.key);
-
-        const arr = th.querySelector('.arr');
-        if(arr){
-            arr.textContent = th.dataset.sort === curSort.key ? (curSort.dir < 0 ? '▼' : '▲' ) : '▼';        }
-    });
-
-    if(!rows.length){
-        $('#tblBody').innerHTML = `
-            <tr>
+        if(!rows.length){
+            $('#tblBody').innerHTML = `
+                <tr>
                 <td colspan="7" style="text-align:center;color:var(--text-faint);padding:30px">
-                    Nenhum projeto encontrado.
+                Nenhum projeto encontrado.
                 </td>
-            </tr>`;
-        return;
-    }
+                </tr>`;
+            return;
+        }
 
-    $('#tblBody').innerHTML = rows.map(p=>{
+        $('#tblBody').innerHTML = rows.map(p=>{
 
-        const sd = SAUDE[p.saude] || SAUDE.cancelado;
+            const sd = SAUDE[p.saude] || SAUDE.cancelado;
+            console.log(p)
+            const paradoCls =
+                p.dias_parado > 14 ? 'hot' :
+                p.dias_parado > 7  ? 'warm' : '';
 
-         const paradoCls =
-            p.dias_parado > 14 ? 'hot' :
-            p.dias_parado > 7  ? 'warm' : '';
-
-        const ajustesCls =
-            p.qtd_alteracoes > 2 ? 'hot' :
-            p.qtd_alteracoes > 1 ? 'warm' : '';
-        const funcs = (p.funcionarios || []).map(f=>`
-            <span class="av" title="${esc(f.cargo || '')}">
+            const ajustesCls =
+                p.qtd_alteracoes > 2 ? 'hot' :
+                p.qtd_alteracoes > 1 ? 'warm' : '';
+            const funcs = (p.funcionarios || []).map(f=>`
+                <span class="av" title="${esc(f.cargo || '')}">
                 <span class="ini" style="background:${avatarBg(f.nome)}">
-                    ${initials(f.nome)}
+                ${initials(f.nome)}
                 </span>
                 ${f.nome}
                 <span class="cg">${f.cargo}</span>
-            </span>
-        `).join('');
+                </span>
+                `).join('');
 
-        return `
-            <tr>
+            return `
+                <tr>
                 <td>
-                    <div class="cell-proj">
-                        <div class="pn">${esc(p.nome)}</div>
-                    </div>
+                <div class="cell-proj">
+                <div class="pn">${esc(p.nome)}</div>
+                </div>
                 </td>
 
                 <td>${esc(p.cliente || '—')}</td>
 
                 <td>
-                    <span class="status-chip">
-                        <span class="sc-dot" style="background:${statusColor(p.status)}"></span>
-                        ${esc(p.status)}
-                    </span>
+                <span class="status-chip">
+                <span class="sc-dot" style="background:${statusColor(p.status)}"></span>
+                ${esc(p.status)}
+                </span>
                 </td>
 
                 <td>
-                    <span class="badge ${sd.cls}">
-                        <span class="bd-dot"></span>
-                        ${sd.label}
-                    </span>
+                <span class="badge ${sd.cls}">
+                <span class="bd-dot"></span>
+                ${sd.label}
+                </span>
                 </td>
 
                 <td>
-                    <span class="num-pill ${ajustesCls}">
-                        ${p.qtd_alteracoes ?? 0}
-                    </span>
+                <span class="num-pill ${ajustesCls}">
+                ${p.qtd_alteracoes ?? 0}
+                </span>
                 </td>
 
                 <td>
-                    <span class="num-pill ${paradoCls}">
-                        ${p.dias_parado ?? 0}d
-                    </span>
+                <span class="num-pill ${paradoCls}">
+                ${p.dias_parado ?? 0}d
+                </span>
                 </td>
 
                 <td>
-                    <div class="funcs">
-                        ${funcs || '—'}
-                    </div>
+                <div class="funcs">
+                ${funcs || '—'}
+                </div>
                 </td>
-            </tr>
-        `;
+                </tr>
+                `;
 
-    }).join('');
-}
+        }).join('');
+    }
 
     // ââ Prazos âââââââââââââââââââââââââââââââââââââââââââââââ
     function renderPrazos(){
@@ -753,190 +753,190 @@ function renderTable(){
     }
 
 
-function buildPipeline() {
-    const host = $('#pipe');
-    if (!DATA) return;
+    function buildPipeline() {
+        const host = $('#pipe');
+        if (!DATA) return;
 
-    const lanesData = DATA.projetos_linha_tempo || [];
-		
+        const lanesData = DATA.projetos_linha_tempo || [];
 
-    const ts = [];
-    for (const l of lanesData) {
-        for (const e of (l.eventos || [])) {
-            const d = parseData(e.data);
-            if (d) ts.push(+d);
-        }
-    }
 
-    if (!ts.length) {
-        host.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Sem histórico para montar a linha do tempo.</div>';
-        return;
-    }
-
-    let start = new Date(Math.min(...ts));
-    start = new Date(start.getFullYear(), start.getMonth(), 1);
-
-    let lastEv = new Date(Math.max(...ts));
-    let end = new Date(Math.max(+lastEv, +REF));
-    end = new Date(+end + DAY);
-
-    const span = Math.max(1, end - start);
-    const x = t => ((t - start) / span) * 100;
-
-    const ticks = [];
-    const cur = new Date(start);
-
-    while (cur <= end) {
-        const dom = cur.getDate();
-        if (dom === 1 || dom % 5 === 0)
-            ticks.push(new Date(cur));
-        cur.setDate(cur.getDate() + 1);
-    }
-
-    const mIdx = start.getMonth();
-    const yIdx = start.getFullYear();
-
-    const deadlines = [
-        { day: 10, lbl: 'Briefing · 10' },
-        { day: 25, lbl: 'Em aprovação · 25' },
-        { day: 30, lbl: 'Aprovado · 30' }
-    ]
-    .map(d => ({
-        ...d,
-        t: +new Date(yIdx, mIdx, d.day)
-    }))
-    .filter(d => d.t >= +start && d.t <= +end);
-
-    const axisTicks = ticks.map(d =>
-        `<div class="axis-tick" style="left:${x(+d)}%">
-            <span class="at-lbl">${String(d.getDate()).padStart(2,'0')}</span>
-            <span class="at-line"></span>
-        </div>`
-    ).join('');
-
-    const dlMarks = deadlines.map(d =>
-        `<div class="deadline" style="left:${x(d.t)}%">
-            <span class="dl-lbl">${d.lbl}</span>
-            <span class="dl-line"></span>
-        </div>`
-    ).join('');
-    const labelsHTML = lanesData.map(p => {
-
-        const sd = SAUDE[p.saude] || SAUDE.cancelado;
-
-        const stale =
-            (p.dias_parado != null &&
-             p.dias_parado > 7 &&
-             p.status_id !== CANCEL &&
-             !FINAL.has(p.status_id))
-            ? `<span class="ll-stale">parado ${p.dias_parado}d</span>`
-            : '';
-
-        return `
-            <div class="lane-label">
-                <div class="ll-top">
-                    <span class="ll-dot" style="background:${sd.dot}"></span>
-                    <span class="ll-name">${esc(p.projeto)}</span>
-                </div>
-                <div class="ll-sub">
-                    ${esc(p.cliente || '')}
-                    ${stale}
-                </div>
-            </div>`;
-    }).join('');
-
-    const lanesHTML = lanesData.map(p => {
-
-        const ev = eventos(p);
-        const stEv = ev.filter(e => e.status);
-
-        let segs = '';
-
-        for (let i = 0; i < stEv.length - 1; i++) {
-            const a = x(+stEv[i]._t);
-            const b = x(+stEv[i + 1]._t);
-
-            segs += `
-                <span class="seg"
-                    style="
-                        left:${a}%;
-                        width:${Math.max(0,b-a)}%;
-                        background:${statusColor(stEv[i].status)}
-                    ">
-                </span>`;
-        }
-
-        if (
-            stEv.length &&
-            p.dias_parado != null &&
-            p.dias_parado > 0 &&
-            p.status_id !== CANCEL &&
-            !FINAL.has(p.status_id)
-        ) {
-
-            const a = x(+stEv[stEv.length - 1]._t);
-            const b = x(+REF);
-
-            if (b > a) {
-                segs += `
-                    <span class="seg seg-stale"
-                        style="
-                            left:${a}%;
-                            width:${b-a}%;
-                        ">
-                    </span>`;
+        const ts = [];
+        for (const l of lanesData) {
+            for (const e of (l.eventos || [])) {
+                const d = parseData(e.data);
+                if (d) ts.push(+d);
             }
         }
 
-        const nodes = ev.map(e => {
+        if (!ts.length) {
+            host.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Sem histórico para montar a linha do tempo.</div>';
+            return;
+        }
 
-            const isComment = !e.status;
-            const color = isComment ? 'transparent' : statusColor(e.status);
-            const isFinal = FINAL.has(statusId(e.status));
+        let start = new Date(Math.min(...ts));
+        start = new Date(start.getFullYear(), start.getMonth(), 1);
 
-            const tip = JSON.stringify({
-                d: e._t.toLocaleString('pt-BR', {
-                    day:'2-digit',
-                    month:'short',
-                    hour:'2-digit',
-                    minute:'2-digit'
-                }),
-                s: e.status || 'Comentário',
-                f: e.funcionario || '',
-                c: e.cargo || '',
-                m: e.comentario || '',
-                color
-            });
+        let lastEv = new Date(Math.max(...ts));
+        let end = new Date(Math.max(+lastEv, +REF));
+        end = new Date(+end + DAY);
+
+        const span = Math.max(1, end - start);
+        const x = t => ((t - start) / span) * 100;
+
+        const ticks = [];
+        const cur = new Date(start);
+
+        while (cur <= end) {
+            const dom = cur.getDate();
+            if (dom === 1 || dom % 5 === 0)
+                ticks.push(new Date(cur));
+            cur.setDate(cur.getDate() + 1);
+        }
+
+        const mIdx = start.getMonth();
+        const yIdx = start.getFullYear();
+
+        const deadlines = [
+            { day: 10, lbl: 'Briefing · 10' },
+            { day: 25, lbl: 'Em aprovação · 25' },
+            { day: 30, lbl: 'Aprovado · 30' }
+        ]
+            .map(d => ({
+                ...d,
+                t: +new Date(yIdx, mIdx, d.day)
+            }))
+            .filter(d => d.t >= +start && d.t <= +end);
+
+        const axisTicks = ticks.map(d =>
+            `<div class="axis-tick" style="left:${x(+d)}%">
+            <span class="at-lbl">${String(d.getDate()).padStart(2,'0')}</span>
+            <span class="at-line"></span>
+            </div>`
+        ).join('');
+
+        const dlMarks = deadlines.map(d =>
+            `<div class="deadline" style="left:${x(d.t)}%">
+            <span class="dl-lbl">${d.lbl}</span>
+            <span class="dl-line"></span>
+            </div>`
+        ).join('');
+        const labelsHTML = lanesData.map(p => {
+
+            const sd = SAUDE[p.saude] || SAUDE.cancelado;
+
+            const stale =
+                (p.dias_parado != null &&
+                    p.dias_parado > 7 &&
+                    p.status_id !== CANCEL &&
+                    !FINAL.has(p.status_id))
+                ? `<span class="ll-stale">parado ${p.dias_parado}d</span>`
+                : '';
 
             return `
-                <span
-                    class="node ${isComment ? 'is-comment' : ''} ${isFinal ? 'is-final' : ''}"
-                    style="left:${x(+e._t)}%; background:${color}"
-                    data-tip='${esc(tip)}'>
-                </span>`;
+                <div class="lane-label">
+                <div class="ll-top">
+                <span class="ll-dot" style="background:${sd.dot}"></span>
+                <span class="ll-name">${esc(p.projeto)}</span>
+                </div>
+                <div class="ll-sub">
+                ${esc(p.cliente || '')}
+            ${stale}
+                </div>
+                </div>`;
         }).join('');
 
-        return `<div class="lane">${segs}${nodes}</div>`;
+        const lanesHTML = lanesData.map(p => {
 
-    }).join('');
+            const ev = eventos(p);
+            const stEv = ev.filter(e => e.status);
 
-    host.innerHTML = `
-        <div class="pipe-labels">
+            let segs = '';
+
+            for (let i = 0; i < stEv.length - 1; i++) {
+                const a = x(+stEv[i]._t);
+                const b = x(+stEv[i + 1]._t);
+
+                segs += `
+                    <span class="seg"
+                style="
+                left:${a}%;
+                width:${Math.max(0,b-a)}%;
+                background:${statusColor(stEv[i].status)}
+                ">
+                    </span>`;
+            }
+
+            if (
+                stEv.length &&
+                p.dias_parado != null &&
+                p.dias_parado > 0 &&
+                p.status_id !== CANCEL &&
+                !FINAL.has(p.status_id)
+            ) {
+
+                const a = x(+stEv[stEv.length - 1]._t);
+                const b = x(+REF);
+
+                if (b > a) {
+                    segs += `
+                        <span class="seg seg-stale"
+                    style="
+                    left:${a}%;
+                    width:${b-a}%;
+                    ">
+                        </span>`;
+                }
+            }
+
+            const nodes = ev.map(e => {
+
+                const isComment = !e.status;
+                const color = isComment ? 'transparent' : statusColor(e.status);
+                const isFinal = FINAL.has(statusId(e.status));
+
+                const tip = JSON.stringify({
+                    d: e._t.toLocaleString('pt-BR', {
+                        day:'2-digit',
+                        month:'short',
+                        hour:'2-digit',
+                        minute:'2-digit'
+                    }),
+                    s: e.status || 'Comentário',
+                    f: e.funcionario || '',
+                    c: e.cargo || '',
+                    m: e.comentario || '',
+                    color
+                });
+
+                return `
+                    <span
+                class="node ${isComment ? 'is-comment' : ''} ${isFinal ? 'is-final' : ''}"
+                style="left:${x(+e._t)}%; background:${color}"
+                data-tip='${esc(tip)}'>
+                    </span>`;
+            }).join('');
+
+            return `<div class="lane">${segs}${nodes}</div>`;
+
+        }).join('');
+
+        host.innerHTML = `
+            <div class="pipe-labels">
             <div class="pipe-axis-pad"></div>
             ${labelsHTML}
-        </div>
+            </div>
 
-        <div class="pipe-plot">
+            <div class="pipe-plot">
             <div class="plot-axis">
-                ${axisTicks}
-                ${dlMarks}
+            ${axisTicks}
+        ${dlMarks}
             </div>
 
             <div class="plot-body">
-                ${lanesHTML}
+            ${lanesHTML}
             </div>
-        </div>`;
-}
+            </div>`;
+    }
 
 
 
