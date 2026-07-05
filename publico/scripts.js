@@ -498,7 +498,6 @@
         $('#tblBody').innerHTML = rows.map(p=>{
 
             const sd = SAUDE[p.saude] || SAUDE.cancelado;
-            console.log(p)
             const paradoCls =
                 p.dias_parado > 14 ? 'hot' :
                 p.dias_parado > 7  ? 'warm' : '';
@@ -580,15 +579,15 @@
             }
             for(const k in byProj) groups[k].items.push(byProj[k]);
         }
-        const fmtCount=(n)=> n? `<span class="badge b-crit"><span class="bd-dot"></span>${n} violaÃ§Ã£o${n>1?'Ãµes':''}</span>` : `<span class="badge b-ok"><span class="bd-dot"></span>Em dia</span>`;
+        const fmtCount=(n)=> n? `<span class="badge b-crit"><span class="bd-dot"></span>${n} violação${n>1?'Ãµes':''}</span>` : `<span class="badge b-ok"><span class="bd-dot"></span>Em dia</span>`;
         $('#rc-brief').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='brief')).length);
         $('#rc-mat').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='mat')).length);
         $('#rc-aprov').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='aprov')).length);
         $('#rc-final').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='final')).length);
 
-        const order=['Briefing atÃ© o dia 10','Sem aguardar materiais (dia 10)','Em aprovaÃ§Ã£o atÃ© o dia 25','Aprovado atÃ© o dia 30'];
+        const order=['Briefing até o dia 10','Sem aguardar materiais (dia 10)','Em aprovação até o dia 25','Aprovado até o dia 30'];
         const keys=Object.keys(groups).sort((a,b)=>order.indexOf(a)-order.indexOf(b));
-        if(!keys.length){ $('#violations').innerHTML=`<div class="panel" style="text-align:center;color:var(--text-dim)">Nenhuma violaÃ§Ã£o de prazo registrada. OperaÃ§Ã£o dentro das metas. â¦</div>`; return; }
+        if(!keys.length){ $('#violations').innerHTML=`<div class="panel" style="text-align:center;color:var(--text-dim)">Nenhuma violação de prazo registrada. Operação dentro das metas.</div>`; return; }
         $('#violations').innerHTML = keys.map(k=>{
             const g=groups[k];
             const rows=g.items.map(it=>{
@@ -605,15 +604,13 @@
                 </div>`;
         }).join('');
     }
-
-    // ââ Clientes âââââââââââââââââââââââââââââââââââââââââââââ
     function perfilCliente(projs){
         const ajustes = projs.reduce((a,p)=>a+(p.total_ajustes||0),0);
         const atraso = projs.some(p=>p.saude==='alerta' || (p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.sev==='crit'));
         const todosOk = projs.every(p=>p.saude==='saudavel'||p.saude==='cancelado');
-        if(ajustes>2 && atraso) return {label:'ProblemÃ¡tico Â· com atraso', cls:'b-crit'};
-        if(ajustes>2 && !atraso) return {label:'ProblemÃ¡tico Â· sem atraso', cls:'b-warn'};
-        if(ajustes===0 && todosOk) return {label:'RÃ¡pido', cls:'b-ok'};
+        if(ajustes>2 && atraso) return {label:'Problemático até com atraso', cls:'b-crit'};
+        if(ajustes>2 && !atraso) return {label:'Problemático até sem atraso', cls:'b-warn'};
+        if(ajustes===0 && todosOk) return {label:'Rápido', cls:'b-ok'};
         return {label:'Regular', cls:'b-mut'};
     }
     function renderClientes(){
@@ -649,7 +646,7 @@
             const rapido = (f.media_dias||0) <= medDias;
             const assert = (f.assertividade||0) >= 60;
             const cls = (assert&&rapido)?'b-ok' : (!assert&&!rapido)?'b-crit' : 'b-warn';
-            return {label:`${rapido?'RÃ¡pido':'Demorado'} Â· ${assert?'assertivo':'nÃ£o assertivo'}`, cls};
+            return {label:`${rapido?'Rápido':'Demorado'} até ${assert?'assertivo':'não assertivo'}`, cls};
         };
         const byCargo={};
         for(const f of F){ (byCargo[f.cargo||'â']=byCargo[f.cargo||'â']||[]).push(f); }
@@ -707,9 +704,9 @@
         while(cur<=end){ const dom=cur.getDate(); if(dom===1||dom%5===0) ticks.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
         const mIdx=start.getMonth(), yIdx=start.getFullYear();
         const deadlines=[
-            {day:10, lbl:'Briefing Â· 10'},
-            {day:25, lbl:'Em aprovaÃ§Ã£o Â· 25'},
-            {day:30, lbl:'Aprovado Â· 30'}
+            {day:10, lbl:'Briefing até 10'},
+            {day:25, lbl:'Em aprovação até 25'},
+            {day:30, lbl:'Aprovado até 30'}
         ].map(d=>({...d, t:+new Date(yIdx,mIdx,d.day)})).filter(d=>d.t>=+start && d.t<=+end);
 
         const axisTicks = ticks.map(d=>`<div class="axis-tick" style="left:${x(+d)}%"><span class="at-lbl">${String(d.getDate()).padStart(2,'0')}</span><span class="at-line"></span></div>`).join('');
@@ -738,7 +735,7 @@
                 const isC=!e.status;
                 const color=isC?'transparent':statusColor(e.status);
                 const isFinal=FINAL.has(statusId(e.status));
-                const tip=JSON.stringify({d:e._t.toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}), s:e.status||'ComentÃ¡rio', f:e.funcionario||'', c:e.cargo||'', m:e.comentario||'', color});
+                const tip=JSON.stringify({d:e._t.toLocaleString('pt-BR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}), s:e.status||'Comentário', f:e.funcionario||'', c:e.cargo||'', m:e.comentario||'', color});
                 return `<span class="node ${isC?'is-comment':''} ${isFinal?'is-final':''}" style="left:${x(+e._t)}%; background:${color}" data-tip='${esc(tip)}'></span>`;
             }).join('');
             return `<div class="lane">${segs}${nodes}</div>`;
@@ -952,7 +949,7 @@
             let d; try{ d=JSON.parse(n.dataset.tip); }catch(_){ return; }
             tip.innerHTML = `<div class="t-date">${esc(d.d)}</div>
                 <div class="t-status"><span class="ts-dot" style="background:${d.color==='transparent'?'var(--text-faint)':d.color}"></span>${esc(d.s)}</div>
-                ${ d.f? `<div class="t-meta">${esc(d.f)}${d.c?` Â· ${esc(d.c)}`:''}</div>`:''}
+                ${ d.f? `<div class="t-meta">${esc(d.f)}${d.c?` até ${esc(d.c)}`:''}</div>`:''}
             ${ d.m? `<div class="t-comment">â${esc(d.m)}â</div>`:''}`;
             tip.classList.add('show'); moveTip(e);
         });
