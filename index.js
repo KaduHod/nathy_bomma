@@ -99,14 +99,8 @@ async function carregarDados() {
 			p.id as projeto_id,
 			s.nome as status,
 			ps.data,
-			DATEDIFF(NOW(), ps.data) AS dias_parado,
-			((case
-				when p.categoria = 'critico' collate utf8mb4_0900_ai_ci then 4
-				when p.categoria = 'em_alerta' collate utf8mb4_0900_ai_ci then 3
-				when p.categoria = 'saudavel' collate utf8mb4_0900_ai_ci then 1
-			end) 
-				* (p.qtd_alteracoes)
-			) as score
+			DATEDIFF(NOW(), (select max(data) from projeto_status where projeto_id = ps.projeto_id)) AS dias_parado,
+			calcular_score(p.categoria, p.qtd_alteracoes) AS score
 		from
 			projeto_status ps
 		join vw_projeto_saude p on

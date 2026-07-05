@@ -38,8 +38,8 @@
 
     const SAUDE = {
         saudavel:{label:'Saudável', cls:'b-ok', dot:'#34D399'},
-        atencao:{label:'Atenção', cls:'b-warn', dot:'#FBBF24'},
-        alerta:{label:'Alerta', cls:'b-crit', dot:'#FB7185'},
+        em_alerta:{label:'Atenção', cls:'b-warn', dot:'#FBBF24'},
+        critico:{label:'Alerta', cls:'b-crit', dot:'#FB7185'},
         cancelado:{label:'Cancelado', cls:'b-mut', dot:'#6B7488'}
     };
     const SAUDE_RANK = {alerta:0, atencao:1, saudavel:2, cancelado:3};
@@ -153,7 +153,6 @@
             const res = await fetch('/api/dashboard',{cache:'no-store'});
             if(!res.ok) throw new Error('HTTP '+res.status);
             DATA = await res.json();
-            console.log(DATA)
             prep(); renderAll(); showState('ready');
         }catch(err){ console.error(err); showError(err); }
     }
@@ -756,7 +755,6 @@ function buildPipeline() {
             <span class="dl-line"></span>
         </div>`
     ).join('');
-
     const labelsHTML = lanesData.map(p => {
 
         const sd = SAUDE[p.saude] || SAUDE.cancelado;
