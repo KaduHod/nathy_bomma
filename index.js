@@ -43,7 +43,6 @@ async function carregarDados() {
         FROM status s
         LEFT JOIN projeto p ON p.status_id = s.id
         WHERE s.nome IN (
-            'A fazer',
             'Briefing em construção',
             'Em desenvolvimento',
             'Pronto pra aprovação',
@@ -92,6 +91,55 @@ async function carregarDados() {
         group by categoria
     `);
 
+	const [projeto_linha_tempo_rows] = await db.query(`
+		select
+			p.nome as projeto,
+			p.categoria as saude,
+			c.nome as cliente,
+			p.id as projeto_id,
+			s.nome as status,
+			ps.data,
+			DATEDIFF(NOW(), ps.data) AS dias_parado,
+			((case
+				when p.categoria = 'critico' collate utf8mb4_0900_ai_ci then 4
+				when p.categoria = 'em_alerta' collate utf8mb4_0900_ai_ci then 3
+				when p.categoria = 'saudavel' collate utf8mb4_0900_ai_ci then 1
+			end) 
+				* (p.qtd_alteracoes)
+			) as score
+		from
+			projeto_status ps
+		join vw_projeto_saude p on
+			p.id = ps.projeto_id
+		join status s on
+			s.id = ps.status_id
+		join cliente c on
+			c.id = p.cliente_id
+		order by
+			score desc,
+			ps.projeto_id,
+			dias_parado desc,
+			p.nome,
+			ps.data asc
+	`)
+
+	let projeto_linha_tempo = projeto_linha_tempo_rows.reduce((acc, curr) => {
+		if(!acc[curr.projeto]) {
+			acc[curr.projeto] = {
+				projeto_id: curr.projeto_id,
+				projeto: curr.projeto,
+				saude: curr.saude,
+				dias_parado: curr.dias_parado,
+				cliente: curr.cliente,
+				score: parseInt(curr.score),
+				eventos: []
+			};
+		}
+		acc[curr.projeto].eventos.push(curr);
+		return acc
+	}, {});
+	projeto_linha_tempo = Object.values(projeto_linha_tempo)
+	console.log(projeto_linha_tempo)
     return {
         clientes,
         funcionarios,
@@ -103,7 +151,8 @@ async function carregarDados() {
         resumo:rows.pop(),
         resumo_por_status: resumo_por_status,
         projetos_criticos,
-        projetos_por_saude
+        projetos_por_saude,
+		projeto_linha_tempo
     };
 }
 
@@ -129,7 +178,11 @@ function diffDias(dataInicio, dataFim) {
 //   historico_projeto → linha do tempo de notificações por projeto
 
 app.get("/api/dashboard", async (req, res) => {
-    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos, projetos_por_saude } = await carregarDados();
+    const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo, resumo_por_status, projetos_criticos, projetos_por_saude, 
+		projeto_linha_tempo
+
+
+	} = await carregarDados();
 
     // Lookups rápidos por id
     const clienteMap     = Object.fromEntries(clientes.map(c => [c.id, c]));
@@ -366,7 +419,8 @@ app.get("/api/dashboard", async (req, res) => {
         historico_projeto,
         resumo_por_status,
         projetos_criticos,
-        projetos_por_saude
+        projetos_por_saude,
+		projeto_linha_tempo
     });
 });
 

@@ -225,8 +225,6 @@
 
         const getClass = (status) => {
             switch(status) {
-                case 'A fazer':
-                    return 'k-mut';
                 case 'Briefing em construção':
                     return 'k-ok';
                 case 'Em desenvolvimento':
@@ -241,7 +239,6 @@
         };
 
         const order = [
-            'A fazer',
             'Briefing em construção',
             'Em desenvolvimento',
             'Em aprovação',
@@ -619,7 +616,7 @@ function renderTriage(){
     }
 
     // ── PIPELINE (signature) ─────────────────────────────────
-    function buildPipeline(){
+    function buildPipeline_(){
         const host=$('#pipe'); if(!DATA) return;
         const projMap={}; for(const p of (DATA.projetos_lista||[])) projMap[p.id]=p;
 
@@ -687,6 +684,199 @@ function renderTriage(){
             <div class="plot-body">${lanesHTML}</div>
             </div>`;
     }
+
+
+function buildPipeline() {
+    const host = $('#pipe');
+    if (!DATA) return;
+
+    // Os dados j� v�m prontos do banco
+    const lanesData = DATA.projeto_linha_tempo || [];
+		
+
+    // Dom�nio temporal
+    const ts = [];
+    for (const l of lanesData) {
+        for (const e of (l.eventos || [])) {
+            const d = parseData(e.data);
+            if (d) ts.push(+d);
+        }
+    }
+
+    if (!ts.length) {
+        host.innerHTML = '<div style="padding:40px;text-align:center;color:var(--text-faint)">Sem hist�rico para montar a linha do tempo.</div>';
+        return;
+    }
+
+    let start = new Date(Math.min(...ts));
+    start = new Date(start.getFullYear(), start.getMonth(), 1);
+
+    let lastEv = new Date(Math.max(...ts));
+    let end = new Date(Math.max(+lastEv, +REF));
+    end = new Date(+end + DAY);
+
+    const span = Math.max(1, end - start);
+    const x = t => ((t - start) / span) * 100;
+
+    // eixo
+    const ticks = [];
+    const cur = new Date(start);
+
+    while (cur <= end) {
+        const dom = cur.getDate();
+        if (dom === 1 || dom % 5 === 0)
+            ticks.push(new Date(cur));
+        cur.setDate(cur.getDate() + 1);
+    }
+
+    const mIdx = start.getMonth();
+    const yIdx = start.getFullYear();
+
+    const deadlines = [
+        { day: 10, lbl: 'Briefing � 10' },
+        { day: 25, lbl: 'Em aprova��o � 25' },
+        { day: 30, lbl: 'Aprovado � 30' }
+    ]
+    .map(d => ({
+        ...d,
+        t: +new Date(yIdx, mIdx, d.day)
+    }))
+    .filter(d => d.t >= +start && d.t <= +end);
+
+    const axisTicks = ticks.map(d =>
+        `<div class="axis-tick" style="left:${x(+d)}%">
+            <span class="at-lbl">${String(d.getDate()).padStart(2,'0')}</span>
+            <span class="at-line"></span>
+        </div>`
+    ).join('');
+
+    const dlMarks = deadlines.map(d =>
+        `<div class="deadline" style="left:${x(d.t)}%">
+            <span class="dl-lbl">${d.lbl}</span>
+            <span class="dl-line"></span>
+        </div>`
+    ).join('');
+
+    const labelsHTML = lanesData.map(p => {
+
+        const sd = SAUDE[p.saude] || SAUDE.cancelado;
+
+        const stale =
+            (p.dias_parado != null &&
+             p.dias_parado > 7 &&
+             p.status_id !== CANCEL &&
+             !FINAL.has(p.status_id))
+            ? `<span class="ll-stale">parado ${p.dias_parado}d</span>`
+            : '';
+
+        return `
+            <div class="lane-label">
+                <div class="ll-top">
+                    <span class="ll-dot" style="background:${sd.dot}"></span>
+                    <span class="ll-name">${esc(p.projeto)}</span>
+                </div>
+                <div class="ll-sub">
+                    ${esc(p.cliente || '')}
+                    ${stale}
+                </div>
+            </div>`;
+    }).join('');
+
+    const lanesHTML = lanesData.map(p => {
+
+        const ev = eventos(p);
+        const stEv = ev.filter(e => e.status);
+
+        let segs = '';
+
+        for (let i = 0; i < stEv.length - 1; i++) {
+            const a = x(+stEv[i]._t);
+            const b = x(+stEv[i + 1]._t);
+
+            segs += `
+                <span class="seg"
+                    style="
+                        left:${a}%;
+                        width:${Math.max(0,b-a)}%;
+                        background:${statusColor(stEv[i].status)}
+                    ">
+                </span>`;
+        }
+
+        if (
+            stEv.length &&
+            p.dias_parado != null &&
+            p.dias_parado > 0 &&
+            p.status_id !== CANCEL &&
+            !FINAL.has(p.status_id)
+        ) {
+
+            const a = x(+stEv[stEv.length - 1]._t);
+            const b = x(+REF);
+
+            if (b > a) {
+                segs += `
+                    <span class="seg seg-stale"
+                        style="
+                            left:${a}%;
+                            width:${b-a}%;
+                        ">
+                    </span>`;
+            }
+        }
+
+        const nodes = ev.map(e => {
+
+            const isComment = !e.status;
+            const color = isComment ? 'transparent' : statusColor(e.status);
+            const isFinal = FINAL.has(statusId(e.status));
+
+            const tip = JSON.stringify({
+                d: e._t.toLocaleString('pt-BR', {
+                    day:'2-digit',
+                    month:'short',
+                    hour:'2-digit',
+                    minute:'2-digit'
+                }),
+                s: e.status || 'Coment�rio',
+                f: e.funcionario || '',
+                c: e.cargo || '',
+                m: e.comentario || '',
+                color
+            });
+
+            return `
+                <span
+                    class="node ${isComment ? 'is-comment' : ''} ${isFinal ? 'is-final' : ''}"
+                    style="left:${x(+e._t)}%; background:${color}"
+                    data-tip='${esc(tip)}'>
+                </span>`;
+        }).join('');
+
+        return `<div class="lane">${segs}${nodes}</div>`;
+
+    }).join('');
+
+    host.innerHTML = `
+        <div class="pipe-labels">
+            <div class="pipe-axis-pad"></div>
+            ${labelsHTML}
+        </div>
+
+        <div class="pipe-plot">
+            <div class="plot-axis">
+                ${axisTicks}
+                ${dlMarks}
+            </div>
+
+            <div class="plot-body">
+                ${lanesHTML}
+            </div>
+        </div>`;
+}
+
+
+
     function statusId(name){ // reverse lookup só para marcar nós finais
         const map={'aprovado':13,'finalizado':14}; return map[norm(name)]||0;
     }
