@@ -167,7 +167,7 @@
         const e=$('#error'); e.hidden=false;
         e.innerHTML = `<h3>Não foi possível carregar o painel</h3>
             <p>A chamada para <code>/api/dashboard</code> falhou (${esc(err.message)}).</p>
-            <p>Confirme que o servidor está rodando com <code>npm start</code> e que a pasta <code>dados/</code> com os arquivos <code>.json</code> existe na raiz do projeto.</p>
+            <!-- <p>Confirme que o servidor está rodando com <code>npm start</code> e que a pasta <code>dados/</code> com os arquivos <code>.json</code> existe na raiz do projeto.</p> -->
             <button id="retry">Tentar de novo</button>`;
         $('#retry').addEventListener('click', load);
     }
@@ -175,7 +175,9 @@
     function prep(){
         HISTMAP={}; for(const h of (DATA.historico_projeto||[])) HISTMAP[h.projeto_id]=h;
         DIAS={};
-        for(const p of (DATA.projetos_lista||[])){ DIAS[p.id] = HISTMAP[p.id]? diasSemMovimento(HISTMAP[p.id]) : null; }
+        for(const p of (DATA.projetos_lista||[])){
+            DIAS[p.id] = HISTMAP[p.id] ? diasSemMovimento(HISTMAP[p.id]) : null;
+        }
     }
 
     function renderAll(){
@@ -264,34 +266,7 @@
             `).join('');
     }
     // ── Triage / atenção imediata ────────────────────────────
-    function renderTriage_(){
-        const list = (DATA.projetos_lista||[])
-            .filter(p=>p.status_id!==CANCEL)
-            .map(p=>({p, dias:DIAS[p.id], score:critScore(p,DIAS[p.id])}))
-            .filter(x=>x.score>0)
-            .sort((a,b)=>b.score-a.score)
-            .slice(0,8);
 
-        const el=$('#triage');
-        if(!list.length){
-            el.innerHTML = `<div class="panel" style="text-align:center; color:var(--text-dim)">Nada crítico no momento — todos os projetos dentro dos parâmetros. ✦</div>`;
-            return;
-        }
-        const cards = list.map(({p,dias,score})=>{
-            const sev = p.saude==='alerta'?'sev-alerta': p.status_id===5?'sev-block': (dias>7?'sev-stale':'sev-atencao');
-            const rs = reasons(p,dias).map(r=>`<span class="rchip ${r.c}">${esc(r.t)}</span>`).join('');
-            return `<div class="tcard ${sev}">
-                <div class="tc-top">
-                <div><div class="tc-name">${esc(p.nome||p.identifier)}</div><div class="tc-id mono">${esc(p.cliente||'—')}</div></div>
-                <div class="tc-score" style="color:${score>=8?'var(--crit)':score>=5?'var(--warn)':'var(--text-dim)'}">${score}</div>
-                </div>
-                <div class="tc-reasons">${rs||'<span class="rchip">—</span>'}</div>
-                </div>`;
-        }).join('');
-        el.innerHTML = `
-            <div class="triage-head"><span class="pulse"></span><h2>Atenção imediata</h2><span class="count">${list.length} ${list.length===1?'projeto':'projetos'} ordenados por criticidade</span></div>
-            <div class="triage-grid">${cards}</div>`;
-    }
     function renderTriage(){
         const list = (DATA.projetos_criticos || [])
             .filter(p => p.categoria !== 'cancelado')
@@ -490,15 +465,14 @@
     }
     function sortVal(p,k){
         if(k==='saude') return SAUDE_RANK[p.saude]??9;
-        if(k==='ajustes') return p.total_ajustes||0;
-        if(k==='parado') return DIAS[p.id]??-1;
+        if(k==='qtd_alteracoes') return p.qtd_alteracoes||0;
+        if(k==='dias_parado') return p.dias_parado;
         if(k==='alertas') return (p.alertas_prazo||[]).length;
         return 0;
     }
     function renderTable(){
 
         let rows = [...(DATA.projetos_lista || [])];
-
         if(curSort.key){
             rows.sort((a,b)=>{
                 const d = (sortVal(a, curSort.key) - sortVal(b, curSort.key)) * curSort.dir;
