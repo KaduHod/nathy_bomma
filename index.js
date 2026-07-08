@@ -245,6 +245,74 @@ async function carregarDados() {
 		})
 		return acc
 	}, {}));
+    const [prazos_row] = await db.query(`
+select
+    case when PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
+              and day(curdate()) >= 10
+              and not exists (
+                  select 1 from projeto_status ps
+                  where ps.projeto_id = vps.id
+                    and ps.status_id not in (4,6,7,8,9,10,11,12,13,14)
+              )
+        then 'Atrasado'
+        else 'Em dia'
+    end as situacao_briefing_finalizado,
+
+    case when PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
+              and day(curdate()) > 10 and day(curdate()) <= 25
+              and not exists (
+                  select 1 from projeto_status ps
+                  where ps.projeto_id = vps.id
+                    and ps.status_id in (6,7,8,9,10,11,12,13,14)
+              )
+        then 'Atrasado'
+        else 'Em dia'
+    end as situacao_producao_criativos,
+
+    case when PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
+              and day(curdate()) >= 20 and day(curdate()) <= 25
+              and not exists (
+                  select 1 from projeto_status ps
+                  where ps.projeto_id = vps.id
+                    and ps.status_id in (7,8,9,11,12,13,14)
+              )
+        then 'Atrasado'
+        else 'Em dia'
+    end as situacao_fluxo_aprovacao,
+
+    case when PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
+              and day(curdate()) >= 30
+              and vps.status_id != 14
+        then 'Atrasado'
+        else 'Em dia'
+    end as situacao_agendamento_posts,
+
+    case
+        when day(curdate()) >= 30
+             or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0
+            then 'Agendamento de Posts/Aprovado'
+        when day(curdate()) >= 25 then 'Fluxo de Aprovação'
+        when day(curdate()) > 10  then 'Produção de Criativos'
+        when day(curdate()) < 10  then 'Construção de Briefing'
+    end as fase_projeto,
+	c.nome cliente,
+    s.nome status,
+    vps.nome as projeto,
+    vps.*
+from vw_projeto_saude vps
+join cliente c on vps.cliente_id = c.id
+join status s on s.id = vps.status_id
+where (
+        vps.dt_finalizado is null
+        and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0
+      )
+   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
+    `);
+    const prazos = prazos_row.reduce((acc, curr) => {
+        if(!acc[curr.fase_projeto]) acc[curr.fase_projeto] = [];
+        acc[curr.fase_projeto].push(curr);
+        return acc
+    }, {});
     return {
         clientes,
         funcionarios,
@@ -260,7 +328,8 @@ async function carregarDados() {
 		projetos_linha_tempo,
 		projetos_lista,
         projetos_por_status,
-        media_dias_por_status
+        media_dias_por_status,
+        prazos
 
     };
 }
@@ -291,6 +360,7 @@ app.get("/api/dashboard", async (req, res) => {
     const { clientes, funcionarios, status, projetos, projetoFuncionario, notificacoes, resumo,
         resumo_por_status, projetos_criticos, projetos_por_saude, projetos_por_status
         ,media_dias_por_status, projetos_linha_tempo, projetos_lista
+        , prazos
     } = await carregarDados();
 
     // Lookups rápidos por id
@@ -525,7 +595,8 @@ app.get("/api/dashboard", async (req, res) => {
 		projetos_linha_tempo,
 		projetos_lista,
         projetos_por_status,
-        media_dias_por_status
+        media_dias_por_status,
+        prazos
     });
 });
 

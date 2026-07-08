@@ -571,45 +571,51 @@
     }
 
     function renderPrazos(){
-        const L=DATA.projetos_lista||[];
+        const L = [];
+        Object.keys(DATA.prazos).forEach(p=>{
+            L.push(...DATA.prazos[p])
+        });
         const groups={}; // key regra -> {rule, items:[{p, descs:[]}]}
         const ruleCount={brief:0,mat:0,aprov:0,final:0};
-        for(const p of L){
-            const byProj={};
-            for(const a of (p.alertas_prazo||[])){
-                const m=ALERTAS_META[a.tipo]; if(!m) continue;
-                ruleCount[m.key]=(ruleCount[m.key]||0)+1;
-                (groups[m.regra]=groups[m.regra]||{items:[]});
-                (byProj[m.regra]=byProj[m.regra]||{p, descs:[], sev:m.sev});
-                byProj[m.regra].descs.push(a.descricao||m.label);
-                if(m.sev==='crit') byProj[m.regra].sev='crit';
-            }
-            for(const k in byProj) groups[k].items.push(byProj[k]);
-        }
-        const fmtCount=(n)=> n? `<span class="badge b-crit"><span class="bd-dot"></span>${n} violação${n>1?'Ãµes':''}</span>` : `<span class="badge b-ok"><span class="bd-dot"></span>Em dia</span>`;
-        $('#rc-brief').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='brief')).length);
-        $('#rc-mat').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='mat')).length);
-        $('#rc-aprov').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='aprov')).length);
-        $('#rc-final').innerHTML=fmtCount(L.filter(p=>(p.alertas_prazo||[]).some(a=>ALERTAS_META[a.tipo]?.key==='final')).length);
+        // for(const p of L){
+        //     const byProj={};
+        //     for(const a of (p.alertas_prazo||[])){
+        //         const m=ALERTAS_META[a.tipo]; if(!m) continue;
+        //         ruleCount[m.key]=(ruleCount[m.key]||0)+1;
+        //         (groups[m.regra]=groups[m.regra]||{items:[]});
+        //         (byProj[m.regra]=byProj[m.regra]||{p, descs:[], sev:m.sev});
+        //         byProj[m.regra].descs.push(a.descricao||m.label);
+        //         if(m.sev==='crit') byProj[m.regra].sev='crit';
+        //     }
+        //     for(const k in byProj) groups[k].items.push(byProj[k]);
+        // }
+        const fmtCount=(n)=> n? `<span class="badge b-crit"><span class="bd-dot"></span>${n} violação${n>1?'(ões)':''}</span>` : `<span class="badge b-ok"><span class="bd-dot"></span>Em dia</span>`;
+        $('#rc-brief').innerHTML=fmtCount(L.filter(p => p.situacao_briefing_finalizado != 'Em dia').length);
+        $('#rc-prod-cria').innerHTML=fmtCount(L.filter(p => p.situacao_producao_criativos != 'Em dia').length);
+        $('#rc-fluxo-aprov').innerHTML=fmtCount(L.filter(p => p.situacao_fluxo_aprovacao != 'Em dia').length);
+        $('#rc-final').innerHTML=fmtCount(L.filter(p => p.situacao_agendamento_posts != 'Em dia').length);
 
-        const order=['Briefing até o dia 10','Sem aguardar materiais (dia 10)','Em aprovação até o dia 25','Aprovado até o dia 30'];
-        const keys=Object.keys(groups).sort((a,b)=>order.indexOf(a)-order.indexOf(b));
-        if(!keys.length){ $('#violations').innerHTML=`<div class="panel" style="text-align:center;color:var(--text-dim)">Nenhuma violação de prazo registrada. Operação dentro das metas.</div>`; return; }
-        $('#violations').innerHTML = keys.map(k=>{
-            const g=groups[k];
-            const rows=g.items.map(it=>{
-                const sd=SAUDE[it.p.saude]||SAUDE.cancelado;
-                return `<div class="viol-row">
-                    <span class="badge ${it.sev==='crit'?'b-crit':'b-warn'}" style="flex:none"><span class="bd-dot"></span>${it.sev==='crit'?'CrÃ­tico':'Alerta'}</span>
-                    <div class="vr-proj">${esc(it.p.nome||it.p.identifier)}<small>${esc(it.p.cliente||'')}</small></div>
-                    <div class="vr-desc">${esc(it.descs[0])}</div>
-                    </div>`;
+        if(!L.length){
+            $('#violations').innerHTML=`<div class="panel" style="text-align:center;color:var(--text-dim)">Nenhuma violação de prazo registrada. Operação dentro das metas.</div>`;
+            return;
+        }
+        $('#violations').innerHTML = Object.keys(DATA.prazos).map((fase_projeto) => {
+            const rows = DATA.prazos[fase_projeto].map(row => {
+                return `
+                    <div class="viol-row">
+                        <span class="badge ${row.saude==='crit'?'b-crit':'b-warn'}" style="flex:none"><span class="bd-dot"></span>${row.saude==='crit'?'Crítico':'Alerta'}</span>
+                        <div class="vr-proj">${esc(row.projeto)}<small>${esc(row.cliente)}</small></div>
+                        <div class="vr-desc"></div>
+                    </div>
+                `;
             }).join('');
-            return `<div class="viol-group">
-                <div class="viol-head"><span class="vh-title">${esc(k)}</span><span class="vh-rule">${g.items.length} projeto(s)</span></div>
-                <div class="viol-list">${rows}</div>
-                </div>`;
-        }).join('');
+            return `
+                <div class="viol-group">
+                    <div class="viol-head"><span class="vh-title">${esc(fase_projeto)}</span><span class="vh-rule">${DATA.prazos[fase_projeto].length} projeto(s)</span></div>
+                    <div class="viol-list">${rows}</div>
+                </div>
+            `;
+        }).join('')
     }
     function perfilCliente(projs){
         const ajustes = projs.reduce((a,p)=>a+(p.total_ajustes||0),0);

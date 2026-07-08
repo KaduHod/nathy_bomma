@@ -28,7 +28,7 @@
                     <div class="nav-label" style="margin-top:14px;">Análise</div>
                     <button class="nav-item" data-view="prazos"><span class="ni-dot"></span>Prazos</button>
                     <button class="nav-item" data-view="clientes"><span class="ni-dot"></span>Clientes</button>
-                    <button class="nav-item" data-view="equipe"><span class="ni-dot"></span>Equipe</button>
+                    <!-- <button class="nav-item" data-view="equipe"><span class="ni-dot"></span>Equipe</button> -->
                 </nav>
                 <div class="side-foot">
                     <div class="lbl">Período de análise</div>
@@ -110,11 +110,32 @@
                 <!-- PRAZOS -->
                 <section class="view" id="view-prazos" hidden>
                     <div class="grid rules">
-                        <div class="rule"><div class="rd">ATÉ DIA 10</div><div class="rt">Briefing finalizado</div><div class="rs">Social Media conclui o briefing de todos os projetos do mês.</div><div class="rcount" id="rc-brief"></div></div>
-                        <div class="rule"><div class="rd">ATÉ DIA 10</div><div class="rt">Sem aguardar materiais</div><div class="rs">Nenhum projeto pode seguir bloqueado por materiais do cliente.</div><div class="rcount" id="rc-mat"></div></div>
-                        <div class="rule"><div class="rd">ATÉ DIA 25</div><div class="rt">Em aprovação</div><div class="rs">Todos os projetos devem ter chegado à etapa de aprovação.</div><div class="rcount" id="rc-aprov"></div></div>
-                        <div class="rule"><div class="rd">ATÉ DIA 30</div><div class="rt">Aprovado</div><div class="rs">Todos os projetos do mês devem estar aprovados.</div><div class="rcount" id="rc-final"></div></div>
+                        <div class="rule">
+                            <div class="rd">ATÉ DIA 10</div>
+                            <div class="rt">Briefing finalizado</div>
+                            <div class="rs">Social Media conclui o briefing de todos os projetos do mês.</div>
+                            <div class="rcount" id="rc-brief"></div>
+                        </div>
+                        <div class="rule">
+                            <div class="rd">DIA 10–25</div>
+                            <div class="rt">Produção dos Criativos</div>
+                            <div class="rs">Equipe de criação desenvolve as peças e materiais do projeto.</div>
+                            <div class="rcount" id="rc-prod-cria"></div>
+                        </div>
+                        <div class="rule">
+                            <div class="rd">DIA 20–25</div>
+                            <div class="rt">Fluxo de Aprovação</div>
+                            <div class="rs">Materiais são enviados e revisados até a aprovação do cliente.</div>
+                            <div class="rcount" id="rc-fluxo-aprov"></div>
+                        </div>
+                        <div class="rule">
+                            <div class="rd">ATÉ DIA 30</div>
+                            <div class="rt">Agendamento de Posts</div>
+                            <div class="rs">Todos os posts aprovados são agendados para publicação.</div>
+                            <div class="rcount" id="rc-final"></div>
+                        </div>
                     </div>
+
                     <div id="violations"></div>
                 </section>
 
