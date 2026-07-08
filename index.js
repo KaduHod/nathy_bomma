@@ -287,14 +287,7 @@ select
         else 'Em dia'
     end as situacao_agendamento_posts,
 
-    case
-        when day(curdate()) >= 30
-             or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0
-            then 'Agendamento de Posts/Aprovado'
-        when day(curdate()) >= 25 then 'Fluxo de Aprovação'
-        when day(curdate()) > 10  then 'Produção de Criativos'
-        when day(curdate()) < 10  then 'Construção de Briefing'
-    end as fase_projeto,
+    fn_fase_projeto(vps.data_vencimento) as fase_projeto,
 	c.nome cliente,
     s.nome status,
     vps.nome as projeto,

@@ -1,5 +1,10 @@
 (function(){
     "use strict";
+
+    const capitalize = (string) => {
+        const cap = str => str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
+        return string.split(' ').map(cap).join(' ');
+    }
     function fmtDate(data){
         if(!data) return '—';
 
@@ -220,9 +225,6 @@
 
     function renderKPIs(){
         const r = DATA.resumo_por_status || {};
-
-        const capitalize = (str) =>
-            str ? str.charAt(0).toUpperCase() + str.slice(1) : str;
 
         const getClass = (status) => {
             switch(status) {
@@ -605,7 +607,7 @@
                     <div class="viol-row">
                         <span class="badge ${row.saude==='crit'?'b-crit':'b-warn'}" style="flex:none"><span class="bd-dot"></span>${row.saude==='crit'?'Crítico':'Alerta'}</span>
                         <div class="vr-proj">${esc(row.projeto)}<small>${esc(row.cliente)}</small></div>
-                        <div class="vr-desc"></div>
+                        <div class="vr-desc">${esc(capitalize(row.status))}</div>
                     </div>
                 `;
             }).join('');
