@@ -36,28 +36,36 @@ async function carregarDados() {
         (select count(vps.id) from vw_projeto_saude vps where categoria = 'em_alerta' collate utf8mb4_0900_ai_ci) as total_alerta,
         (select count(vps.id) from vw_projeto_saude vps where categoria = 'critico' collate utf8mb4_0900_ai_ci) as total_critico,
         (select count(vps.id) from vw_projeto_saude vps where categoria = 'saudavel' collate utf8mb4_0900_ai_ci) as total_saudavel
-        from projeto p`);
+        from vw_projeto_saude p
+ where (
+        p.dt_finalizado is null
+        and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(p.data_vencimento, '%Y%m')) > 0
+      )
+   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(p.data_vencimento, '%Y%m')) = 0
+
+
+        `);
     const resumo_por_status_query = await db.query(`
 
         SELECT COUNT(s.id) as total, s.nome
         FROM status s
         LEFT JOIN projeto p ON p.status_id = s.id
         WHERE s.nome IN (
-            'Briefing em construção',
-            'Em desenvolvimento',
-            'Pronto pra aprovação',
-            'Em aprovação',
+            'Briefing em Construção',
+            'Em Desenvolvimento',
+            'Pronto para Aprovação',
+            'Em Aprovação',
             'Em Alteração'
         )
         GROUP BY s.nome
         ORDER BY CASE s.nome
         WHEN 'A fazer' THEN 1
-        WHEN 'Briefing em construção' THEN 2
-        WHEN 'Em desenvolvimento' THEN 3
-        WHEN 'Pronto pra aprovação' THEN 4
-        WHEN 'Em aprovação' then 5
+        WHEN 'Briefing em Construção' THEN 2
+        WHEN 'Em Desenvolvimento' THEN 3
+        WHEN 'Pronto para Aprovação' THEN 4
+        WHEN 'Em Aprovação' then 5
         WHEN 'Em Alteração' THEN 6
-        END;
+        END
         `);
     const resumo_por_status = resumo_por_status_query[0].reduce((acc, curr) => { acc[curr.nome] = curr.total; return acc; }, {});
 
@@ -75,7 +83,15 @@ async function carregarDados() {
         JOIN cliente c ON c.id = vps.cliente_id
         ##JOIN notificacao n ON n.projeto_id = vps.id
 
-        WHERE (vps.categoria collate utf8mb4_0900_ai_ci) in ('em_alerta', 'critico')
+        WHERE (vps.categoria collate utf8mb4_0900_ai_ci) in ('em_alerta', 'critico') and
+
+  (
+        vps.dt_finalizado is null
+        and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0
+      )
+   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
+
+
         ORDER BY
             CASE
                 WHEN (vps.categoria = 'critico' collate utf8mb4_0900_ai_ci) THEN 1
@@ -87,29 +103,34 @@ async function carregarDados() {
     );
 
     const [projetos_por_saude] = await db.query(`
-        select count(vps.id) as total, vps.categoria from vw_projeto_saude vps
+                    select count(vps.id) as total, vps.categoria from vw_projeto_saude vps
+                      where (
+        vps.dt_finalizado is null
+        and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0
+      )
+   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
         group by categoria
     `);
     const [projetos_por_status] = await db.query(`
-        SELECT
+        select
             count(t.projeto_id)as total,
             s.nome
-        FROM
+        from
             (
-            SELECT
+            select
                 n.*,
-                ROW_NUMBER() OVER (
-                    PARTITION BY n.projeto_id
-            ORDER BY
-                n.data DESC,
-                n.id DESC
-                ) AS rn
-            FROM
+                row_number() over (
+                    partition by n.projeto_id
+            order by
+                n.data desc,
+                n.id desc
+                ) as rn
+            from
                 notificacao n
         ) t
         join status s on
             s.id = t.alteracao_status_id
-        WHERE
+        where
             t.rn = 1
         group by
             s.nome
@@ -121,55 +142,62 @@ async function carregarDados() {
             status s2
         where
             s2.id not in (
-            SELECT
+            select
                 t.alteracao_status_id
-            FROM
+            from
                 (
-                SELECT
+                select
                     n.alteracao_status_id,
-                    ROW_NUMBER() OVER (
-                    PARTITION BY n.projeto_id
-                ORDER BY
-                    n.data DESC,
-                    n.id DESC
-                ) AS rn
-                FROM
+                    row_number() over (
+                    partition by n.projeto_id
+                order by
+                    n.data desc,
+                    n.id desc
+                ) as rn
+                from
                     notificacao n
         ) t
-            WHERE
+            where
                 t.rn = 1
         )
-        order by
-            total desc
+        ##corrigir
 
     `);
 
     const [media_dias_por_status] = await db.query(`
+select
+	round(avg(vst.dias_ate_proxima)) as media,
+	s.nome as status
+from
+	vw_status_tempo vst
+join status s on
+	s.id = vst.status_id
+join vw_projeto_saude p on
+	p.id = vst.projeto_id
+where
+	(
+        p.dt_finalizado is null
+		and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(p.data_vencimento, '%Y%m')) > 0
+      )
+	or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(p.data_vencimento, '%Y%m')) = 0
+group by
+	s.nome,
+	s.id
+union
         select
-            round(avg(vst.dias_ate_proxima)) as media,
-            s.nome as status
-        from
-            vw_status_tempo vst
-        join status s on
-            s.id = vst.status_id
-        group by
-            s.nome,
-            s.id
-        union
-        select
-            0 as media,
-            s2.nome as status
-        from
-            status s2
-        where
-            s2.id not in (
-            select
-                vst.status_id
-            from
-                vw_status_tempo vst
+	0 as media,
+	s2.nome as status
+from
+	status s2
+where
+	s2.id not in (
+	select
+		vst.status_id
+	from
+		vw_status_tempo vst
         )
-        order by
-            media desc
+order by
+	media desc
     `)
 
 	const [projetos_linha_tempo_rows] = await db.query(`
@@ -190,6 +218,12 @@ async function carregarDados() {
 			s.id = ps.status_id
 		join cliente c on
 			c.id = p.cliente_id
+
+where (
+        p.dt_finalizado is null
+        and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(p.data_vencimento, '%Y%m')) > 0
+      )
+   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(p.data_vencimento, '%Y%m')) = 0
 		order by
 			score desc,
 			ps.projeto_id,
@@ -230,6 +264,11 @@ async function carregarDados() {
 		join cliente c on c.id = vps.cliente_id
 		join projeto_funcionario pf on pf.projeto_id = vps.id
 		join funcionario f on f.id = pf.funcionario_id
+where (
+        vps.dt_finalizado is null
+        and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0
+      )
+   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
 		order by
 			score desc,
 			vps.id,

@@ -888,7 +888,6 @@
         const map={'aprovado':13,'finalizado':14}; return map[norm(name)]||0;
     }
 
-    // ââ Tooltip do pipeline ââââââââââââââââââââââââââââââââââ
     function bindTooltip(){
         const tip=$('#tip');
         document.addEventListener('mouseover', e=>{
