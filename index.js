@@ -113,55 +113,22 @@ async function carregarDados() {
     `);
     const [projetos_por_status] = await db.query(`
         select
-            count(t.projeto_id)as total,
+            count(p.id) as total,
             s.nome
-        from
-            (
-            select
-                n.*,
-                row_number() over (
-                    partition by n.projeto_id
-            order by
-                n.data desc,
-                n.id desc
-                ) as rn
-            from
-                notificacao n
-        ) t
-        join status s on
-            s.id = t.alteracao_status_id
-        where
-            t.rn = 1
-        group by
-            s.nome
+        from projeto p
+        join status s on s.id = p.status_id
+        group by s.nome
+
         union
         select
             0 as total,
             s2.nome
         from
             status s2
-        where
-            s2.id not in (
-            select
-                t.alteracao_status_id
-            from
-                (
-                select
-                    n.alteracao_status_id,
-                    row_number() over (
-                    partition by n.projeto_id
-                order by
-                    n.data desc,
-                    n.id desc
-                ) as rn
-                from
-                    notificacao n
-        ) t
-            where
-                t.rn = 1
+        where s2.id not in (
+        	select status_id from projeto p2
         )
-        ##corrigir
-
+        order by total desc
     `);
 
     const [media_dias_por_status] = await db.query(`
