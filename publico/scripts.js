@@ -314,6 +314,7 @@
                 `;
 
             return `
+                <a class='link-clean' target='_blank' href='/projeto?id=${p.id}'>
                 <div class="tcard ${sev}">
                 <div class="tc-top">
                 <div>
@@ -330,6 +331,7 @@
                 ${info}
                 </div>
                 </div>
+                </a>
                 `;
         }).join('');
 
@@ -510,7 +512,7 @@
         if(curFilter){
             rows = rows.filter(FILTERS[curFilter]);
         }
-
+        console.log(rows)
         $('#tblBody').innerHTML = rows.map(p=>{
 
             const sd = SAUDE[p.saude] || SAUDE.cancelado;
@@ -535,7 +537,7 @@
                 <tr>
                 <td>
                 <div class="cell-proj">
-                <div class="pn">${esc(p.nome)}</div>
+                <div class="pn"><a target="_blank" href="/projeto?id=${p.id}">${esc(p.nome)}</a></div>
                 </div>
                 </td>
 
@@ -612,7 +614,7 @@
                 return `
                     <div class="viol-row">
                         <span class="badge ${row.saude==='crit'?'b-crit':'b-warn'}" style="flex:none"><span class="bd-dot"></span>${row.saude==='crit'?'Crítico':'Alerta'}</span>
-                        <div class="vr-proj">${esc(row.projeto)}<small>${esc(row.cliente)}</small></div>
+                        <div class="vr-proj"> <a href="/projeto?id=${row.id}" target="_blank">${esc(row.projeto)} </a><small>${esc(row.cliente)}</small></div>
                         <div class="vr-desc">${esc(capitalize(row.status))}</div>
                     </div>
                 `;

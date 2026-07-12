@@ -73,6 +73,7 @@ async function carregarDados() {
     const [projetos_criticos] = await db.query(
         `
        SELECT
+            vps.id,
             vps.nome as projeto,
             c.nome as cliente,
             vps.categoria,
@@ -225,7 +226,8 @@ where (
 			f.cargo,
 			DATEDIFF(NOW(), (select max(data) from projeto_status where projeto_id = vps.id)) AS dias_parado,
 			calcular_score(vps.categoria, vps.qtd_alteracoes) as score,
-            vps.categoria as saude
+            vps.categoria as saude,
+            vps.id
 		from vw_projeto_saude vps
 		join status s on s.id = vps.status_id
 		join cliente c on c.id = vps.cliente_id
