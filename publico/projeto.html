@@ -6,95 +6,69 @@
         <title>Fluxo · Projeto</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link rel="stylesheet" href="estilos.css" />
-        <link rel="stylesheet" href="projeto.css" />
+        <link rel="stylesheet" href="/estilos.css" />
+        <link rel="stylesheet" href="/projeto.css" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     </head>
     <body>
-        <div class="app">
-            <aside class="sidebar">
-                <a href="index.html" class="brand" style="text-decoration:none;">
-                    <div class="brand-mark"></div>
-                    <div>
-                        <div class="brand-name">Fluxo</div>
-                        <div class="brand-sub">Torre de controle</div>
-                    </div>
-                </a>
-
-                <nav class="nav">
-                    <div class="nav-label">Operação</div>
-                    <a class="nav-item" href="index.html#visao"><span class="ni-dot"></span>Visão geral</a>
-                    <a class="nav-item" href="index.html#pipeline"><span class="ni-dot"></span>Pipeline</a>
-                    <a class="nav-item is-active" href="index.html#projetos"><span class="ni-dot"></span>Projetos</a>
-                    <a class="nav-item" href="index.html#prazos"><span class="ni-dot"></span>Prazos</a>
-                </nav>
-
-                <div class="side-foot">
-                    <div class="lbl">Você está em</div>
-                    <div class="val">Ficha de projeto</div>
-                    <div class="hint" id="sideHint">Detalhe de status, equipe e comentários de um projeto específico.</div>
+        <main class="main main-solo">
+            <header class="topbar">
+                <div style="min-width:0;">
+                    <div class="eyebrow" id="eyebrow">Projeto</div>
+                    <h1 id="projNome">—</h1>
+                    <p class="view-intro" id="projSub">Carregando dados do projeto…</p>
                 </div>
-            </aside>
+                <div class="topbar-meta">
+                    <div id="topMeta" style="display:flex; gap:9px; flex-wrap:wrap;"></div>
+                    <a href="/" class="btn-refresh" style="text-decoration:none;">← Voltar ao dashboard</a>
+                    <button class="btn-refresh" id="btnRefresh" title="Recarregar dados">↻ Atualizar</button>
+                </div>
+            </header>
 
-            <main class="main">
-                <header class="topbar">
-                    <div style="min-width:0;">
-                        <a href="index.html#projetos" class="back-link">← Voltar para projetos</a>
-                        <div class="eyebrow" id="eyebrow" style="margin-top:8px;">Projeto</div>
-                        <h1 id="projNome">—</h1>
-                        <p class="view-intro" id="projSub">Carregando dados do projeto…</p>
-                    </div>
-                    <div class="topbar-meta">
-                        <div id="topMeta" style="display:flex; gap:9px; flex-wrap:wrap;"></div>
-                        <button class="btn-refresh" id="btnRefresh" title="Recarregar dados">↻ Atualizar</button>
-                    </div>
-                </header>
+            <div id="loading" class="state"><div class="spin"></div>Carregando o projeto…</div>
+            <div id="error" class="state--error" hidden></div>
 
-                <div id="loading" class="state"><div class="spin"></div>Carregando o projeto…</div>
-                <div id="error" class="state--error" hidden></div>
+            <section id="content" hidden>
 
-                <section id="content" hidden>
-
-                    <!-- Detalhes + Equipe -->
-                    <div class="two-col">
-                        <div class="panel">
-                            <div class="panel-head">
-                                <span class="panel-title">Detalhes do projeto</span>
-                                <span class="panel-sub">Cliente, prazos e categoria</span>
-                            </div>
-                            <div class="detail-grid" id="detailsGrid"></div>
-                        </div>
-
-                        <div class="panel">
-                            <div class="panel-head">
-                                <span class="panel-title">Equipe envolvida</span>
-                                <span class="panel-sub" id="equipeCount"></span>
-                            </div>
-                            <div class="team-list" id="equipeList"></div>
-                        </div>
-                    </div>
-
-                    <!-- Lista de status -->
-                    <div class="panel top-section">
-                        <div class="panel-head">
-                            <span class="panel-title">Linha do tempo de status</span>
-                            <span class="panel-sub" id="statusCount"></span>
-                        </div>
-                        <div id="statusTimeline"></div>
-                    </div>
-
-                    <!-- Comentários -->
+                <!-- Detalhes + Equipe -->
+                <div class="two-col">
                     <div class="panel">
                         <div class="panel-head">
-                            <span class="panel-title">Comentários</span>
-                            <span class="panel-sub" id="commentCount"></span>
+                            <span class="panel-title">Detalhes do projeto</span>
+                            <span class="panel-sub">Cliente, prazos e categoria</span>
                         </div>
-                        <div class="comments-list" id="commentsList"></div>
+                        <div class="detail-grid" id="detailsGrid"></div>
                     </div>
 
-                </section>
-            </main>
-        </div>
-        <script src="projeto.js"></script>
+                    <div class="panel">
+                        <div class="panel-head">
+                            <span class="panel-title">Equipe envolvida</span>
+                            <span class="panel-sub" id="equipeCount"></span>
+                        </div>
+                        <div class="team-list" id="equipeList"></div>
+                    </div>
+                </div>
+
+                <!-- Lista de status -->
+                <div class="panel top-section">
+                    <div class="panel-head">
+                        <span class="panel-title">Linha do tempo de status</span>
+                        <span class="panel-sub" id="statusCount"></span>
+                    </div>
+                    <div id="statusTimeline"></div>
+                </div>
+
+                <!-- Comentários -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <span class="panel-title">Comentários</span>
+                        <span class="panel-sub" id="commentCount"></span>
+                    </div>
+                    <div class="comments-list" id="commentsList"></div>
+                </div>
+
+            </section>
+        </main>
+        <script src="/projeto.js"></script>
     </body>
 </html>

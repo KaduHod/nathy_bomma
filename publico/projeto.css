@@ -2,6 +2,13 @@
    Usa as mesmas variáveis de tema (--bg, --surface, --border, --text...)
    já definidas em estilos.css — este arquivo deve ser carregado depois dele. */
 
+/* Esta página não usa a sidebar do dashboard, então o .main precisa
+   de um teto de largura e centralização próprios. */
+.main-solo{
+    max-width:1180px;
+    margin:0 auto;
+}
+
 .back-link{
     display:inline-flex; align-items:center; gap:5px;
     font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;

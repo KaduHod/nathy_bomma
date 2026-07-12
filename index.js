@@ -603,6 +603,7 @@ app.get('/projeto', (req, res) => {
 })
 app.get('/api/projeto/:id', async (req, res) => {
     const id = req.params.id
+    console.log('AQUIIIIIII')
     const [rows] = await db.query(`
             select
                 vps.id,
@@ -617,11 +618,12 @@ app.get('/api/projeto/:id', async (req, res) => {
                 vps.data_inicio as data_inicio,
                 vps.dt_finalizado as data_conclusao,
                 vps.qtd_alteracoes,
-                0 as dias_parado,
+                DATEDIFF(NOW(), (select max(data) from projeto_status where projeto_id = ps.projeto_id)) AS dias_parado,
                 s2.nome as hist_status_status,
                 ps.data as hist_status_data,
                 f.nome as hist_status_funcionario,
-                f.cargo as hist_status_cargo
+                f.cargo as hist_status_cargo,
+                vps.qtd_alteracoes
             from
                 vw_projeto_saude vps
             join cliente c on

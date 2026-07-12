@@ -64,7 +64,16 @@
         const d = new Date(s); return isNaN(d) ? null : d;
     }
     const fmtData = s => { const d = parseData(s); if (!d) return '—'; return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); };
-    const fmtDataHora = s => { const d = parseData(s); if (!d) return '—'; return d.toLocaleString('pt-BR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }); };
+    const fmtDataHora = s => {
+        const d = parseData(s);
+        if (!d) return '—';
+        const dia = String(d.getDate()).padStart(2, '0');
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const ano = d.getFullYear();
+        const hora = String(d.getHours()).padStart(2, '0');
+        const min = String(d.getMinutes()).padStart(2, '0');
+        return `${dia}/${mes}/${ano} ${hora}:${min}`;
+    };
 
     const $ = (sel, r = document) => r.querySelector(sel);
 
@@ -124,7 +133,7 @@
         $('#eyebrow').textContent = `Projeto · ${p.cliente || '—'}`;
         $('#projNome').textContent = p.nome || '—';
         $('#projSub').textContent = p.categoria ? `${p.categoria} · ${p.frequencia || ''}`.replace(/·\s*$/, '') : (p.frequencia || '');
-        $('#sideHint').textContent = `${p.nome || 'Projeto'} — ${p.cliente || ''}`;
+        // $('#sideHint').textContent = `${p.nome || 'Projeto'} — ${p.cliente || ''}`;
 
         // ── chips do topo ──
         const chips = [
@@ -188,7 +197,7 @@
         const statusEvents = (p.historico_status || [])
             .map(e => ({ ...e, _t: parseData(e.data) }))
             .filter(e => e._t)
-            .sort((a, b) => a._t - b._t);
+            // .sort((a, b) => a._t - b._t);
         $('#statusCount').textContent = `${statusEvents.length} mudança(s) de status`;
 
         if (!statusEvents.length) {
