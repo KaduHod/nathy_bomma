@@ -228,11 +228,15 @@
 
         const getClass = (status) => {
             switch(status) {
-                case 'Briefing em construção':
+                case 'Briefing em Construção':
                     return 'k-ok';
-                case 'Em desenvolvimento':
+                case 'Em Desenvolvimento':
                     return 'k-ok';
-                case 'Em aprovação':
+                case 'A Fazer':
+                    return 'k-warn';
+                case 'Pronto para Aprovação':
+                    return 'k-warn';
+                case 'Em Aprovação':
                     return 'k-warn';
                 case 'Em Alteração':
                     return 'k-crit';
@@ -242,9 +246,11 @@
         };
 
         const order = [
-            'Briefing em construção',
-            'Em desenvolvimento',
-            'Em aprovação',
+            // 'A Fazer',
+            'Briefing em Construção',
+            'Em Desenvolvimento',
+            'Pronto para Aprovação',
+            'Em Aprovação',
             'Em Alteração'
         ];
 

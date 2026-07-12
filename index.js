@@ -59,7 +59,7 @@ async function carregarDados() {
         )
         GROUP BY s.nome
         ORDER BY CASE s.nome
-        WHEN 'A fazer' THEN 1
+        WHEN 'A Fazer' THEN 1
         WHEN 'Briefing em Construção' THEN 2
         WHEN 'Em Desenvolvimento' THEN 3
         WHEN 'Pronto para Aprovação' THEN 4
@@ -321,7 +321,7 @@ where (
         projetoFuncionario,
         notificacoes,
         resumo:rows.pop(),
-        resumo_por_status: resumo_por_status,
+        resumo_por_status,
         projetos_criticos,
         projetos_por_saude,
 		projetos_linha_tempo,
