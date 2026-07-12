@@ -598,6 +598,71 @@ app.get("/api/dashboard", async (req, res) => {
         prazos
     });
 });
+app.get('/projeto', (req, res) => {
+    res.sendFile(join(__dirname, "publico/projeto.html"));
+})
+app.get('/api/projeto/:id', async (req, res) => {
+    const id = req.params.id
+    const [rows] = await db.query(`
+            select
+                vps.id,
+                vps.nome,
+                c.nome as cliente,
+                s.nome as status,
+                vps.categoria as saude,
+                '' as categoria,
+                'Mensal' as frequencia,
+                1 as estimativa,
+                vps.data_vencimento,
+                vps.data_inicio as data_inicio,
+                vps.dt_finalizado as data_conclusao,
+                vps.qtd_alteracoes,
+                0 as dias_parado,
+                s2.nome as hist_status_status,
+                ps.data as hist_status_data,
+                f.nome as hist_status_funcionario,
+                f.cargo as hist_status_cargo
+            from
+                vw_projeto_saude vps
+            join cliente c on
+                c.id = vps.cliente_id
+            left join status s on
+                vps.status_id = s.id
+            left join projeto_status ps on
+                ps.projeto_id = vps.id
+            left join status s2 on s2.id = ps.status_id
+            left join funcionario f on f.id = ps.funcionario_id
+
+            where vps.id = ?
+            order by ps.data desc
+    `,[id]);
+    const [rows_func] = await db.query(`
+        select f.nome, f.cargo from projeto_funcionario pf
+        left join funcionario f on f.id = pf.funcionario_id
+        where pf.projeto_id = ?
+    `, [id]);
+    const [rows_noti] = await db.query(`
+        select n.comentario, n.data, f.nome as funcionario, f.cargo  from notificacao n
+        join funcionario f ON f.id = n.funcionario_id
+        where n.projeto_id = ?
+    `, [id]);
+    const dados = rows.reduce((acc, row) => {
+        if(!acc.nome) {
+            acc = {...row};
+            acc.funcionarios = rows_func;
+            acc.comentarios = rows_noti;
+            acc.historico_status = [];
+        }
+        const dados_status = {};
+        Object.keys(row).filter(k=> k.indexOf('hist_status_') > -1).forEach(k => {
+            const chave = k.split('hist_status_').pop();
+            dados_status[chave] = row[k];
+        });
+        acc.historico_status.push(dados_status);
+        return acc;
+    }, {});
+    res.json(dados);
+})
 
 // ─── Sobe o servidor ──────────────────────────────────────────────────────────
 

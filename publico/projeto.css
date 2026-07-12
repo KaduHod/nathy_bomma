@@ -1,0 +1,81 @@
+/* Extensão de estilos.css só para a página de detalhe de projeto.
+   Usa as mesmas variáveis de tema (--bg, --surface, --border, --text...)
+   já definidas em estilos.css — este arquivo deve ser carregado depois dele. */
+
+.back-link{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent); text-decoration:none;
+}
+.back-link:hover{ text-decoration:underline; }
+
+.top-section{ margin-bottom:16px; }
+.two-col{
+    display:grid; grid-template-columns:1.3fr 1fr; gap:16px; margin-bottom:16px;
+}
+@media (max-width:860px){ .two-col{ grid-template-columns:1fr; } }
+
+/* Detalhes do projeto */
+.detail-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:16px 24px;
+}
+.detail-item .dt{
+    font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-faint);
+}
+.detail-item .dd{
+    margin:5px 0 0; font-size:13px; color:var(--text);
+}
+
+/* Equipe */
+.team-list{ display:flex; flex-direction:column; gap:8px; }
+.team-item{
+    display:flex; align-items:center; gap:11px;
+    padding:9px 11px; border-radius:10px;
+    background:rgba(255,255,255,.03); border:1px solid var(--border-soft);
+}
+.team-item .avatar{
+    flex:none; width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:12.5px; color:#0b0e14;
+}
+.team-item .ti-name{ font-size:13px; font-weight:600; color:var(--text); }
+.team-item .ti-cargo{ font-size:11px; margin-top:2px; }
+.empty-note{ font-size:12.5px; color:var(--text-faint); }
+
+/* Linha do tempo de status */
+.timeline{ display:flex; flex-direction:column; }
+.tl-item{ display:flex; gap:12px; padding-bottom:20px; }
+.tl-item:last-child{ padding-bottom:0; }
+.tl-rail{ flex:none; width:14px; display:flex; flex-direction:column; align-items:center; }
+.tl-dot{
+    width:12px; height:12px; border-radius:50%; margin-top:2px; flex:none;
+    border:2.5px solid var(--surface); box-shadow:0 0 0 1px var(--border-soft);
+}
+.tl-line{ flex:1; width:1px; margin-top:4px; background:var(--border); }
+.tl-body{ min-width:0; flex:1; }
+.tl-head{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.tl-date{ font-size:11px; color:var(--text-faint); }
+.tl-who{ font-size:11.5px; color:var(--text-dim); margin-top:5px; }
+.tl-who .tw-cargo{ color:var(--text-faint); }
+.tl-comment{ font-size:12px; color:var(--text-dim); margin-top:5px; font-style:italic; }
+
+/* Comentários */
+.comments-list{ display:flex; flex-direction:column; gap:10px; }
+.comment-card{
+    padding:12px 14px; border-radius:11px;
+    background:var(--surface); border:1px solid var(--border-soft);
+}
+.comment-top{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+}
+.comment-author{ display:flex; align-items:center; gap:8px; min-width:0; }
+.comment-author .avatar-sm{
+    flex:none; width:26px; height:26px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:10.5px; color:#0b0e14;
+}
+.comment-author .ca-name{ font-size:12.5px; font-weight:600; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.comment-author .ca-cargo{ font-size:10.5px; color:var(--text-faint); flex:none; }
+.comment-date{ font-size:11px; color:var(--text-faint); flex:none; }
+.comment-status{ margin-top:8px; }
+.comment-text{ font-size:13px; color:var(--text-dim); line-height:1.5; margin:8px 0 0; }

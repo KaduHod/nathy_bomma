@@ -706,7 +706,8 @@
         const host = $('#pipe');
         if (!DATA) return;
 
-        const lanesData = DATA.projetos_linha_tempo || [];
+        const lanesData = [DATA.projetos_linha_tempo[4]] || [];
+        console.log(lanesData)
 
 
         const ts = [];
