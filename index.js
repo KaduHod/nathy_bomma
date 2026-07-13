@@ -303,11 +303,11 @@ select
 from vw_projeto_saude vps
 join cliente c on vps.cliente_id = c.id
 join status s on s.id = vps.status_id
-where (
+where vps.categoria <> 'cancelado' collate utf8mb4_0900_ai_ci and ((
         vps.dt_finalizado is null
         and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0
       )
-   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0
+   or PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) = 0)
     `);
     const prazos = prazos_row.reduce((acc, curr) => {
         if(!acc[curr.fase_projeto]) acc[curr.fase_projeto] = [];
