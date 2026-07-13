@@ -12,30 +12,35 @@
     </head>
     <body>
         <div class="app">
-            <aside class="sidebar">
-                <div class="brand">
-                    <div class="brand-mark"></div>
-                    <div>
-                        <div class="brand-name">Fluxo</div>
-                        <div class="brand-sub">Torre de controle</div>
-                    </div>
-                </div>
-                <nav class="nav" id="nav">
-                    <div class="nav-label">Operação</div>
-                    <button class="nav-item is-active" data-view="visao"><span class="ni-dot"></span>Visão geral</button>
-                    <!-- <button class="nav-item" data-view="pipeline"><span class="ni-dot"></span>Pipeline</button> -->
-                    <button class="nav-item" data-view="projetos"><span class="ni-dot"></span>Projetos</button>
-                    <!-- <div class="nav-label" style="margin-top:14px;">Análise</div> -->
-                    <button class="nav-item" data-view="prazos"><span class="ni-dot"></span>Prazos</button>
-                    <!-- <button class="nav-item" data-view="clientes"><span class="ni-dot"></span>Clientes</button> -->
-                    <!-- <button class="nav-item" data-view="equipe"><span class="ni-dot"></span>Equipe</button> -->
-                </nav>
-                <div class="side-foot">
-                    <div class="lbl">Período de análise</div>
-                    <div class="val" id="sideRef">—</div>
-                    <div class="hint">Prazos e atrasos calculados sobre o mês corrente dos dados.</div>
-                </div>
-            </aside>
+<aside class="sidebar">
+    <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+            <div class="brand-name">Fluxo</div>
+            <div class="brand-sub">Torre de controle</div>
+        </div>
+    </div>
+    <nav class="nav" id="nav">
+        <div class="nav-label">Operação</div>
+        <button class="nav-item is-active" data-view="visao"><span class="ni-dot"></span>Visão geral</button>
+        <!-- <button class="nav-item" data-view="pipeline"><span class="ni-dot"></span>Pipeline</button> -->
+        <button class="nav-item" data-view="projetos"><span class="ni-dot"></span>Projetos</button>
+        <!-- <div class="nav-label" style="margin-top:14px;">Análise</div> -->
+        <button class="nav-item" data-view="prazos"><span class="ni-dot"></span>Prazos</button>
+        <!-- <button class="nav-item" data-view="clientes"><span class="ni-dot"></span>Clientes</button> -->
+        <!-- <button class="nav-item" data-view="equipe"><span class="ni-dot"></span>Equipe</button> -->
+
+        <div class="nav-label" style="margin-top:14px;">Administrador</div>
+        <a href="/projeto/novo" class="nav-item link-clean"><span class="ni-dot"></span>+ Novo projeto</a>
+        <a href="/funcionario" class="nav-item link-clean"><span class="ni-dot"></span>Funcionários</a>
+        <a href="/cliente" class="nav-item link-clean"><span class="ni-dot"></span>Clientes</a>
+    </nav>
+    <div class="side-foot">
+        <div class="lbl">Período de análise</div>
+        <div class="val" id="sideRef">—</div>
+        <div class="hint">Prazos e atrasos calculados sobre o mês corrente dos dados.</div>
+    </div>
+</aside>
 
             <main class="main">
                 <header class="topbar">

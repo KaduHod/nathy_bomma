@@ -16,6 +16,7 @@ app.set("views", path.join(__dirname, "views"))
 // Serve arquivos estáticos (o dashboard.html vai ficar na raiz)
 app.use(express.static(join(__dirname ,"publico")));
 app.use(express.urlencoded({ extended: true }))
+app.use(express.json());
 // Rota raiz → entrega o dashboard em http://localhost:3000/
 app.use("/", viewsRoutes);
 app.use("/administrador", administradorRoutes);

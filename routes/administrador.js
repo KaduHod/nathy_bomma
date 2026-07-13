@@ -394,34 +394,42 @@ router.get("/projeto/:id", async (req, res) => {
 });
 
 // POST /administrador/projeto -> cria (SOMENTE objeto unico, nao aceita array)
+// frequencia_id e sempre "Mensal" (preenchido automaticamente).
+// data_criacao e data_modificacao sao preenchidas automaticamente com a data de hoje.
 router.post("/projeto", async (req, res) => {
     try {
         const {
             nome,
             cliente_id,
             status_id,
-            frequencia_id,
             etapa,
             projeto,
             estimativa,
             data_inicio,
-            data_criacao,
-            data_modificacao,
             data_vencimento,
             data_conclusao
         } = req.body;
 
-        if (!nome || !cliente_id || !status_id || !frequencia_id || !data_criacao || !data_modificacao || !data_vencimento) {
+        if (!nome || !cliente_id || !status_id || !data_vencimento) {
             return res.status(400).json({
-                erro: "Campos 'nome', 'cliente_id', 'status_id', 'frequencia_id', 'data_criacao', 'data_modificacao' e 'data_vencimento' sao obrigatorios."
+                erro: "Campos 'nome', 'cliente_id', 'status_id' e 'data_vencimento' sao obrigatorios."
             });
         }
+
+        const [freqRows] = await pool.query(
+            "SELECT id FROM frequencia WHERE nome = ?",
+            ["Mensal"]
+        );
+        if (freqRows.length === 0) {
+            return res.status(500).json({ erro: "Frequencia 'Mensal' nao esta cadastrada na tabela frequencia." });
+        }
+        const frequencia_id = freqRows[0].id;
 
         const [result] = await pool.query(
             `INSERT INTO projeto
                 (nome, cliente_id, status_id, frequencia_id, etapa, projeto, estimativa,
                  data_inicio, data_criacao, data_modificacao, data_vencimento, data_conclusao)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURDATE(), CURDATE(), ?, ?)`,
             [
                 nome,
                 cliente_id,
@@ -431,31 +439,23 @@ router.post("/projeto", async (req, res) => {
                 projeto ?? null,
                 estimativa ?? null,
                 data_inicio ?? null,
-                data_criacao,
-                data_modificacao,
                 data_vencimento,
                 data_conclusao ?? null
             ]
         );
 
-        return res.status(201).json({
-            id: result.insertId,
-            nome,
-            cliente_id,
-            status_id,
-            frequencia_id,
-            etapa: etapa ?? null,
-            projeto: projeto ?? null,
-            estimativa: estimativa ?? null,
-            data_inicio: data_inicio ?? null,
-            data_criacao,
-            data_modificacao,
-            data_vencimento,
-            data_conclusao: data_conclusao ?? null
-        });
+        const [criado] = await pool.query(
+            `SELECT id, nome, cliente_id, status_id, frequencia_id, etapa, projeto,
+                    estimativa, data_inicio, data_criacao, data_modificacao,
+                    data_vencimento, data_conclusao
+             FROM projeto WHERE id = ?`,
+            [result.insertId]
+        );
+
+        return res.status(201).json(criado[0]);
     } catch (err) {
         if (err.code === "ER_NO_REFERENCED_ROW_2" || err.code === "ER_NO_REFERENCED_ROW") {
-            return res.status(400).json({ erro: "cliente_id, status_id ou frequencia_id informado nao existe." });
+            return res.status(400).json({ erro: "cliente_id ou status_id informado nao existe." });
         }
         console.error("Erro ao criar projeto:", err);
         return res.status(500).json({ erro: "Erro ao criar projeto." });
@@ -463,6 +463,8 @@ router.post("/projeto", async (req, res) => {
 });
 
 // PUT /administrador/projeto/:id -> atualiza
+// data_modificacao e preenchida automaticamente com a data de hoje.
+// data_criacao e frequencia_id nao sao alterados aqui (frequencia e sempre "Mensal").
 router.put("/projeto/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -470,40 +472,34 @@ router.put("/projeto/:id", async (req, res) => {
             nome,
             cliente_id,
             status_id,
-            frequencia_id,
             etapa,
             projeto,
             estimativa,
             data_inicio,
-            data_criacao,
-            data_modificacao,
             data_vencimento,
             data_conclusao
         } = req.body;
 
-        if (!nome || !cliente_id || !status_id || !frequencia_id || !data_criacao || !data_modificacao || !data_vencimento) {
+        if (!nome || !cliente_id || !status_id || !data_vencimento) {
             return res.status(400).json({
-                erro: "Campos 'nome', 'cliente_id', 'status_id', 'frequencia_id', 'data_criacao', 'data_modificacao' e 'data_vencimento' sao obrigatorios."
+                erro: "Campos 'nome', 'cliente_id', 'status_id' e 'data_vencimento' sao obrigatorios."
             });
         }
 
         const [result] = await pool.query(
             `UPDATE projeto SET
-                nome = ?, cliente_id = ?, status_id = ?, frequencia_id = ?, etapa = ?,
-                projeto = ?, estimativa = ?, data_inicio = ?, data_criacao = ?,
-                data_modificacao = ?, data_vencimento = ?, data_conclusao = ?
+                nome = ?, cliente_id = ?, status_id = ?, etapa = ?,
+                projeto = ?, estimativa = ?, data_inicio = ?,
+                data_modificacao = CURDATE(), data_vencimento = ?, data_conclusao = ?
              WHERE id = ?`,
             [
                 nome,
                 cliente_id,
                 status_id,
-                frequencia_id,
                 etapa ?? null,
                 projeto ?? null,
                 estimativa ?? null,
                 data_inicio ?? null,
-                data_criacao,
-                data_modificacao,
                 data_vencimento,
                 data_conclusao ?? null,
                 id
@@ -514,24 +510,18 @@ router.put("/projeto/:id", async (req, res) => {
             return res.status(404).json({ erro: "Projeto nao encontrado." });
         }
 
-        return res.status(200).json({
-            id: Number(id),
-            nome,
-            cliente_id,
-            status_id,
-            frequencia_id,
-            etapa: etapa ?? null,
-            projeto: projeto ?? null,
-            estimativa: estimativa ?? null,
-            data_inicio: data_inicio ?? null,
-            data_criacao,
-            data_modificacao,
-            data_vencimento,
-            data_conclusao: data_conclusao ?? null
-        });
+        const [atualizado] = await pool.query(
+            `SELECT id, nome, cliente_id, status_id, frequencia_id, etapa, projeto,
+                    estimativa, data_inicio, data_criacao, data_modificacao,
+                    data_vencimento, data_conclusao
+             FROM projeto WHERE id = ?`,
+            [id]
+        );
+
+        return res.status(200).json(atualizado[0]);
     } catch (err) {
         if (err.code === "ER_NO_REFERENCED_ROW_2" || err.code === "ER_NO_REFERENCED_ROW") {
-            return res.status(400).json({ erro: "cliente_id, status_id ou frequencia_id informado nao existe." });
+            return res.status(400).json({ erro: "cliente_id ou status_id informado nao existe." });
         }
         console.error("Erro ao atualizar projeto:", err);
         return res.status(500).json({ erro: "Erro ao atualizar projeto." });
