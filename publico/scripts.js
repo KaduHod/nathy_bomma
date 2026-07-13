@@ -404,12 +404,41 @@
         const rows = DATA.media_dias_por_status.map( e => ({...e, media: parseInt(e.media)}));
         charts.tempo?.destroy();
         if(!rows.length){ $('#chartTempo').parentElement.innerHTML='<div style="color:var(--text-faint);font-size:12px;padding:30px 0;text-align:center">Sem transições suficientes no histórico.</div>'; return; }
-        charts.tempo = new Chart($('#chartTempo'),{
-            type:'bar',
-            data:{labels:rows.map(r=>r.status), datasets:[{data:rows.map(r=>+r.media.toFixed(1)), backgroundColor:rows.map(r=>statusColor(r.status)), borderRadius:5, maxBarThickness:18}]},
-            options:{indexAxis:'y', plugins:{legend:{display:false}, tooltip:tooltipStyle((ctx)=>{ const r=rows[ctx.dataIndex]; return ` ${r.media.toFixed(1)} dias · ${r.n} medição(ões)`; })},
-                scales:{x:{beginAtZero:true, grid:{color:'rgba(40,49,67,.4)'}, title:{display:true, text:'dias', color:'#6B7488', font:{size:10}}}, y:{grid:{display:false}, ticks:{font:{size:11.5}}}}}
-        });
+        const chartConfig = {
+            type: 'bar',
+            data: {
+                labels: rows.map(r => r.status),
+                datasets: [{
+                    data: rows.map(r => +r.media.toFixed(1)),
+                    backgroundColor: rows.map(r => statusColor(r.status)),
+                    borderRadius: 5,
+                    maxBarThickness: 18
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: tooltipStyle((ctx) => {
+                        const r = rows[ctx.dataIndex];
+                        return ` ${r.media.toFixed(1)} dia(s)`;
+                    })
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(40,49,67,.4)' },
+                        title: { display: true, text: 'dias', color: '#6B7488', font: { size: 10 } }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { font: { size: 11.5 } }
+                    }
+                }
+            }
+
+        };
+        charts.tempo = new Chart($('#chartTempo'), chartConfig);
     }
     function tooltipStyle(labelFn){
         return {backgroundColor:'#0d1119', borderColor:'#283143', borderWidth:1, titleColor:'#E7EBF3', bodyColor:'#9AA3B7', padding:10, cornerRadius:8, displayColors:true, usePointStyle:true,
