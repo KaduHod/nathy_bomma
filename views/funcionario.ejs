@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('partials/head', { title: title }) %>
+</head>
+<body>
+    <main class="main main-solo">
+        <header class="topbar">
+            <div style="min-width:0;">
+                <div class="eyebrow">Administrador</div>
+                <h1>Funcionários</h1>
+                <p class="view-intro">Gerencie a equipe da agência: nome, e-mail e cargo.</p>
+            </div>
+            <div class="topbar-meta">
+                <div class="tchip">
+                    <span class="n" id="totalCount">—</span>
+                    <span class="l">Total</span>
+                </div>
+                <a href="/" class="btn-ghost">← Voltar ao dashboard</a>
+                <button class="btn-primary" id="btnNovo">+ Novo funcionário</button>
+            </div>
+        </header>
+
+        <div id="loading" class="state"><div class="spin"></div>Carregando funcionários…</div>
+        <div id="error" class="state--error" hidden></div>
+
+        <section id="content" hidden>
+            <div class="panel">
+                <div class="panel-head">
+                    <span class="panel-title">Equipe</span>
+                    <div class="searchbox">
+                        <input type="text" id="busca" placeholder="Buscar por nome ou cargo…" />
+                    </div>
+                </div>
+                <div class="filterbar" id="filtroCargo"></div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>E-mail</th>
+                                <th>Cargo</th>
+                                <th style="text-align:right;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="empty-state" hidden>Nenhum funcionário encontrado.</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal criar/editar -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-head">
+                <h3 id="modalTitle">Novo funcionário</h3>
+                <button class="modal-close" id="modalClose">✕</button>
+            </div>
+            <form id="form">
+                <input type="hidden" id="fId" />
+                <div class="form-group">
+                    <label for="fNome">Nome *</label>
+                    <input type="text" id="fNome" required />
+                </div>
+                <div class="form-group">
+                    <label for="fEmail">E-mail</label>
+                    <input type="email" id="fEmail" />
+                </div>
+                <div class="form-group">
+                    <label for="fCargo">Cargo *</label>
+                    <input type="text" id="fCargo" required placeholder="Ex: Social Media, Designer, Editor de vídeo" />
+                </div>
+                <div class="form-error" id="formError"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-ghost" id="btnCancelar">Cancelar</button>
+                    <button type="submit" class="btn-primary" id="btnSalvar">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/funcionario.js"></script>
+</body>
+</html>
