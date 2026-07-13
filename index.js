@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import db from './banco.js';
+import administradorRoutes from "./routes/administrador.js"; // ajuste o path conforme sua estrutura
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -10,14 +11,14 @@ const PORT = 3000;
 
 // Serve arquivos estáticos (o dashboard.html vai ficar na raiz)
 app.use(express.static(join(__dirname ,"publico")));
-
+app.use(express.urlencoded({ extended: true }))
 // Rota raiz → entrega o dashboard em http://localhost:3000/
     app.get("/", async (req, res) => {
         res.sendFile(join(__dirname, "publico/dashboard.html"));
     });
 
 // ─── Leitura dos JSONs ────────────────────────────────────────────────────────
-
+app.use("/administrador", administradorRoutes);
 function lerJSON(arquivo) {
     const caminho = join(__dirname, "dados", arquivo);
     return JSON.parse(readFileSync(caminho, "utf-8"));
