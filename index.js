@@ -470,39 +470,6 @@ app.get("/api/dashboard", async (req, res) => {
         return alertas;
     }
 
-    // ── Montar lista de projetos enriquecidos ─────────────────────────────────
-
-    const projetos_lista_old = projetos.map(p => {
-        const notifs  = (notifsPorProjeto[p.id] || []).sort((a, b) => new Date(a.data) - new Date(b.data));
-        const ajustes = notifs.filter(n => STATUS_ALTERACAO.includes(n.alteracao_status_id)).length;
-        const funcs   = funcsPorProjeto[p.id] || [];
-
-        const diasEmAndamento = p.data_inicio
-            ? diffDias(p.data_inicio, p.data_conclusao || "2025-07-31")
-            : null;
-
-        return {
-            id:               p.id,
-            identifier:       p.identifier,
-            nome:             p.nome,
-            cenario:          p.cenario,
-            cliente:          clienteMap[p.cliente_id]?.nome,
-            status:           statusMap[p.status_id]?.nome,
-            status_id:        p.status_id,
-            projeto:          p.projeto,
-            tipo_tarefa:      p.tipo_tarefa,
-            estimativa:       p.estimativa,
-            data_inicio:      p.data_inicio,
-            data_vencimento:  p.data_vencimento,
-            data_conclusao:   p.data_conclusao,
-            funcionarios:     funcs.map(f => ({ nome: f.nome, cargo: f.cargo })),
-            total_ajustes:    ajustes,
-            dias_em_andamento: diasEmAndamento,
-            saude:            calcularSaude(p),
-            alertas_prazo:    verificarPrazos(p),
-        };
-    });
-
     // ── Resumo (cards do topo) ────────────────────────────────────────────────
 
     const total = projetos_lista.length;
