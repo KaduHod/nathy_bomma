@@ -1,3 +1,4 @@
+
 /* ── CRUD: botoes, tabela de acoes, modal, formularios ──── */
 
 .btn{border:none; border-radius:9px; padding:9px 16px; font-family:var(--font-body); font-size:13px; font-weight:600; cursor:pointer; transition:.13s; display:inline-flex; align-items:center; gap:7px;}
@@ -25,8 +26,9 @@
 
 .form-group{margin-bottom:14px;}
 .form-group label{display:block; font-size:11px; color:var(--text-dim); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;}
-.form-group input, .form-group select{width:100%; background:var(--raised); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:9px 12px; font-family:var(--font-body); font-size:13.5px;}
-.form-group input:focus, .form-group select:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
+.form-group input, .form-group select, .form-group textarea{width:100%; background:var(--raised); border:1px solid var(--border); color:var(--text); border-radius:9px; padding:9px 12px; font-family:var(--font-body); font-size:13.5px;}
+.form-group textarea{resize:vertical; min-height:70px;}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
 .form-error{font-size:12px; color:var(--crit); margin-top:8px; display:none;}
 .form-error.show{display:block;}
 .modal-actions{display:flex; justify-content:flex-end; gap:9px; margin-top:20px;}
@@ -68,3 +70,4 @@ dialog.modal-native[open]{ animation:rise .18s cubic-bezier(.2,.7,.2,1); }
 .checkbox-row input[type="checkbox"]{ width:16px; height:16px; accent-color:var(--accent); flex:none; cursor:pointer; }
 .checkbox-row .cr-name{ font-size:13px; font-weight:500; }
 .checkbox-row .cr-cargo{ font-size:11px; color:var(--text-faint); margin-left:auto; white-space:nowrap; }
+

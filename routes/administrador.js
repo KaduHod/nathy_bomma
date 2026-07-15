@@ -4,6 +4,21 @@ import pool from "../banco.js"; // ajuste o path conforme sua estrutura
 const router = express.Router();
 
 /* ============================================================
+   STATUS (somente leitura - vocabulario fixo do fluxo)
+   ============================================================ */
+
+// GET /administrador/status -> lista todos
+router.get("/status", async (req, res) => {
+    try {
+        const [rows] = await pool.query("SELECT id, nome FROM status ORDER BY id ASC");
+        return res.status(200).json(rows);
+    } catch (err) {
+        console.error("Erro ao listar status:", err);
+        return res.status(500).json({ erro: "Erro ao listar status." });
+    }
+});
+
+/* ============================================================
    FUNCIONARIO
    ============================================================ */
 
@@ -606,6 +621,105 @@ router.put("/projeto/:id/funcionarios", async (req, res) => {
         }
         console.error("Erro ao atribuir funcionarios ao projeto:", err);
         return res.status(500).json({ erro: "Erro ao atribuir funcionarios ao projeto." });
+    } finally {
+        connection.release();
+    }
+});
+
+/* ============================================================
+   PROJETO_STATUS + NOTIFICACAO (mudanca de status / comentario)
+   ============================================================ */
+
+// GET /administrador/projeto/:id/status -> historico de mudancas de status do projeto
+router.get("/projeto/:id/status", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [rows] = await pool.query(
+            `SELECT ps.id, ps.projeto_id, ps.funcionario_id, f.nome AS funcionario_nome,
+                    ps.status_id, s.nome AS status_nome, ps.data
+             FROM projeto_status ps
+             JOIN funcionario f ON f.id = ps.funcionario_id
+             JOIN status s ON s.id = ps.status_id
+             WHERE ps.projeto_id = ?
+             ORDER BY ps.data DESC, ps.id DESC`,
+            [id]
+        );
+
+        return res.status(200).json(rows);
+    } catch (err) {
+        console.error("Erro ao listar historico de status:", err);
+        return res.status(500).json({ erro: "Erro ao listar historico de status." });
+    }
+});
+
+// POST /administrador/projeto/:id/status -> registra mudanca de status e, opcionalmente, um comentario
+// body: { funcionario_id, status_id, comentario? }
+// - sempre insere em projeto_status
+// - atualiza projeto.status_id para refletir o novo status atual
+// - insere em notificacao SOMENTE se 'comentario' vier preenchido (alteracao_status_id fica sempre NULL)
+router.post("/projeto/:id/status", async (req, res) => {
+    const { id } = req.params;
+    const { funcionario_id, status_id, comentario } = req.body;
+
+    if (!funcionario_id || !status_id) {
+        return res.status(400).json({ erro: "Campos 'funcionario_id' e 'status_id' sao obrigatorios." });
+    }
+
+    const comentarioLimpo = (comentario ?? "").trim();
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const [projetoRows] = await connection.query("SELECT id FROM projeto WHERE id = ?", [id]);
+        if (projetoRows.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ erro: "Projeto nao encontrado." });
+        }
+
+        // o funcionario precisa estar atribuido ao projeto (projeto_funcionario) para poder registrar status/comentario
+        const [atribuicaoRows] = await connection.query(
+            "SELECT 1 FROM projeto_funcionario WHERE projeto_id = ? AND funcionario_id = ?",
+            [id, funcionario_id]
+        );
+        if (atribuicaoRows.length === 0) {
+            await connection.rollback();
+            return res.status(400).json({ erro: "Este funcionario nao esta atribuido a este projeto." });
+        }
+
+        const [resultStatus] = await connection.query(
+            "INSERT INTO projeto_status (projeto_id, funcionario_id, status_id, data) VALUES (?, ?, ?, NOW())",
+            [id, funcionario_id, status_id]
+        );
+
+        await connection.query(
+            "UPDATE projeto SET status_id = ?, data_modificacao = CURDATE() WHERE id = ?",
+            [status_id, id]
+        );
+
+        let notificacaoId = null;
+        if (comentarioLimpo) {
+            const [resultNotif] = await connection.query(
+                "INSERT INTO notificacao (projeto_id, funcionario_id, comentario, alteracao_status_id, data) VALUES (?, ?, ?, NULL, NOW())",
+                [id, funcionario_id, comentarioLimpo]
+            );
+            notificacaoId = resultNotif.insertId;
+        }
+
+        await connection.commit();
+
+        return res.status(201).json({
+            projeto_status_id: resultStatus.insertId,
+            notificacao_id: notificacaoId
+        });
+    } catch (err) {
+        await connection.rollback();
+        if (err.code === "ER_NO_REFERENCED_ROW_2" || err.code === "ER_NO_REFERENCED_ROW") {
+            return res.status(400).json({ erro: "funcionario_id ou status_id informado nao existe." });
+        }
+        console.error("Erro ao registrar mudanca de status:", err);
+        return res.status(500).json({ erro: "Erro ao registrar mudanca de status." });
     } finally {
         connection.release();
     }
