@@ -334,24 +334,27 @@ router.get("/projeto", async (req, res) => {
         const { cliente_id, status_id, frequencia_id } = req.query;
 
         let sql = `
-            SELECT id, nome, cliente_id, status_id, frequencia_id, etapa, projeto,
-                   estimativa, data_inicio, data_criacao, data_modificacao,
-                   data_vencimento, data_conclusao
-            FROM projeto
+            SELECT p.id, p.nome, p.cliente_id, c.nome AS cliente_nome,
+                   p.status_id, s.nome AS status_nome, p.frequencia_id,
+                   p.etapa, p.projeto, p.estimativa, p.data_inicio,
+                   p.data_criacao, p.data_modificacao, p.data_vencimento, p.data_conclusao
+            FROM projeto p
+            JOIN cliente c ON c.id = p.cliente_id
+            JOIN status s ON s.id = p.status_id
         `;
         const condicoes = [];
         const params = [];
 
         if (cliente_id) {
-            condicoes.push("cliente_id = ?");
+            condicoes.push("p.cliente_id = ?");
             params.push(cliente_id);
         }
         if (status_id) {
-            condicoes.push("status_id = ?");
+            condicoes.push("p.status_id = ?");
             params.push(status_id);
         }
         if (frequencia_id) {
-            condicoes.push("frequencia_id = ?");
+            condicoes.push("p.frequencia_id = ?");
             params.push(frequencia_id);
         }
 
@@ -359,7 +362,7 @@ router.get("/projeto", async (req, res) => {
             sql += " WHERE " + condicoes.join(" AND ");
         }
 
-        sql += " ORDER BY data_vencimento ASC";
+        sql += " ORDER BY p.data_vencimento ASC";
 
         const [rows] = await pool.query(sql, params);
         return res.status(200).json(rows);
@@ -525,6 +528,86 @@ router.put("/projeto/:id", async (req, res) => {
         }
         console.error("Erro ao atualizar projeto:", err);
         return res.status(500).json({ erro: "Erro ao atualizar projeto." });
+    }
+});
+
+/* ============================================================
+   PROJETO_FUNCIONARIO (atribuicao de equipe)
+   ============================================================ */
+
+// GET /administrador/projeto/:id/funcionarios -> lista funcionarios atribuidos a um projeto
+router.get("/projeto/:id/funcionarios", async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const [rows] = await pool.query(
+            `SELECT f.id, f.nome, f.email, f.cargo
+             FROM projeto_funcionario pf
+             JOIN funcionario f ON f.id = pf.funcionario_id
+             WHERE pf.projeto_id = ?
+             ORDER BY f.nome ASC`,
+            [id]
+        );
+
+        return res.status(200).json(rows);
+    } catch (err) {
+        console.error("Erro ao listar funcionarios do projeto:", err);
+        return res.status(500).json({ erro: "Erro ao listar funcionarios do projeto." });
+    }
+});
+
+// PUT /administrador/projeto/:id/funcionarios -> substitui o conjunto de funcionarios atribuidos ao projeto
+// body: { funcionario_ids: [1, 2, 3] }  (lista vazia remove todas as atribuicoes)
+router.put("/projeto/:id/funcionarios", async (req, res) => {
+    const { id } = req.params;
+    const { funcionario_ids } = req.body;
+
+    if (!Array.isArray(funcionario_ids)) {
+        return res.status(400).json({ erro: "'funcionario_ids' deve ser um array." });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const [projetoRows] = await connection.query("SELECT id FROM projeto WHERE id = ?", [id]);
+        if (projetoRows.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ erro: "Projeto nao encontrado." });
+        }
+
+        await connection.query("DELETE FROM projeto_funcionario WHERE projeto_id = ?", [id]);
+
+        const idsUnicos = [...new Set(funcionario_ids.map(Number))].filter((n) => !Number.isNaN(n));
+
+        for (const funcionarioId of idsUnicos) {
+            await connection.query(
+                "INSERT INTO projeto_funcionario (projeto_id, funcionario_id) VALUES (?, ?)",
+                [id, funcionarioId]
+            );
+        }
+
+        await connection.commit();
+
+        const [atribuidos] = await pool.query(
+            `SELECT f.id, f.nome, f.email, f.cargo
+             FROM projeto_funcionario pf
+             JOIN funcionario f ON f.id = pf.funcionario_id
+             WHERE pf.projeto_id = ?
+             ORDER BY f.nome ASC`,
+            [id]
+        );
+
+        return res.status(200).json(atribuidos);
+    } catch (err) {
+        await connection.rollback();
+        if (err.code === "ER_NO_REFERENCED_ROW_2" || err.code === "ER_NO_REFERENCED_ROW") {
+            return res.status(400).json({ erro: "Algum funcionario_id informado nao existe." });
+        }
+        console.error("Erro ao atribuir funcionarios ao projeto:", err);
+        return res.status(500).json({ erro: "Erro ao atribuir funcionarios ao projeto." });
+    } finally {
+        connection.release();
     }
 });
 

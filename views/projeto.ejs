@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <%- include('partials/head', { title: title }) %>
+</head>
+<body>
+    <main class="main main-solo">
+        <header class="topbar">
+            <div style="min-width:0;">
+                <div class="eyebrow">Administrador</div>
+                <h1>Projetos</h1>
+                <p class="view-intro">Gerencie os projetos e atribua a equipe responsável por cada um.</p>
+            </div>
+            <div class="topbar-meta">
+                <div class="tchip">
+                    <span class="n" id="totalCount">—</span>
+                    <span class="l">Total</span>
+                </div>
+                <a href="/" class="btn-ghost">← Voltar ao dashboard</a>
+                <a href="/projeto/novo" class="btn-primary">+ Novo projeto</a>
+            </div>
+        </header>
+
+        <div id="loading" class="state"><div class="spin"></div>Carregando projetos…</div>
+        <div id="error" class="state--error" hidden></div>
+
+        <section id="content" hidden>
+            <!-- Lista de projetos + atribuicao de equipe -->
+            <div class="panel">
+                <div class="panel-head">
+                    <span class="panel-title">Projetos</span>
+                    <span class="panel-sub">Clique em “+” para atribuir a equipe responsável</span>
+                </div>
+                <div class="tbl-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Projeto</th>
+                                <th>Status</th>
+                                <th>Vencimento</th>
+                                <th style="text-align:right;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+                <div id="emptyState" class="empty-state" hidden>Nenhum projeto cadastrado.</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Dialog nativo: atribuir equipe ao projeto -->
+    <dialog id="dialogEquipe" class="modal-native">
+        <div class="modal-head">
+            <h3>Atribuir equipe — <span id="dialogProjNome"></span></h3>
+            <button type="button" class="modal-close" id="btnFecharDialog">✕</button>
+        </div>
+        <form id="formEquipe">
+            <div class="checkbox-list" id="checklist"></div>
+            <div class="modal-actions">
+                <button type="button" class="btn-ghost" id="btnCancelarEquipe">Cancelar</button>
+                <button type="submit" class="btn-primary">Salvar equipe</button>
+            </div>
+        </form>
+    </dialog>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/projeto-list.js"></script>
+</body>
+</html>

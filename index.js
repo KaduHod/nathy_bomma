@@ -235,10 +235,10 @@ where (
             vps.categoria as saude,
             vps.id
 		from vw_projeto_saude vps
-		join status s on s.id = vps.status_id
-		join cliente c on c.id = vps.cliente_id
-		join projeto_funcionario pf on pf.projeto_id = vps.id
-		join funcionario f on f.id = pf.funcionario_id
+		left join status s on s.id = vps.status_id
+		left join cliente c on c.id = vps.cliente_id
+		left join projeto_funcionario pf on pf.projeto_id = vps.id
+		left join funcionario f on f.id = pf.funcionario_id
 where (
         vps.dt_finalizado is null
         and PERIOD_DIFF(date_format(curdate(), '%Y%m'), date_format(vps.data_vencimento, '%Y%m')) > 0

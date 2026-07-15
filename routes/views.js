@@ -11,6 +11,11 @@ router.get("/cliente", (req, res) => {
     res.render("cliente", { title: "Fluxo · Clientes" });
 });
 
+// GET /projeto -> listagem de projetos, com atribuicao de equipe
+router.get("/projeto", (req, res) => {
+    res.render("projeto", { title: "Fluxo · Projetos" });
+});
+
 // GET /projeto/novo -> formulario de criacao (status vem do banco)
 router.get("/projeto/novo", async (req, res) => {
     try {
